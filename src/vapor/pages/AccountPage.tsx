@@ -80,7 +80,7 @@ export default function AccountPage({
           <div className="flex flex-col gap-4">
             <div className="animate-rise flex items-center gap-4 rounded-[28px] bg-card p-6">
               <span className="grid size-14 shrink-0 place-items-center rounded-full bg-ink font-display text-xl font-extrabold text-lemon">
-                {user.email[0].toUpperCase()}
+                {(user.email[0] ?? "V").toUpperCase()}
               </span>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[15px] font-bold">{user.email}</p>

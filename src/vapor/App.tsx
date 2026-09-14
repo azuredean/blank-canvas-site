@@ -141,16 +141,17 @@ export default function App() {
     }
     setCart((prev) => {
       const i = prev.findIndex((c) => c.id === id && c.option === option);
-      if (i >= 0) {
+      const existing = prev[i];
+      if (i >= 0 && existing) {
         const next = [...prev];
-        next[i] = { ...next[i], qty: Math.min(99, next[i].qty + qty) };
+        next[i] = { ...existing, qty: Math.min(99, existing.qty + qty) };
         return next;
       }
       return [...prev, { id, option, qty }];
     });
     showToast(`${p.name} added to quote`);
   };
-  const addProduct = (p: Product) => addToCart(p.id, p.options[0], 1);
+  const addProduct = (p: Product) => addToCart(p.id, p.options[0] ?? "Default", 1);
 
   const changeQty = (id: string, option: string, delta: number) => {
     setCart((prev) =>
