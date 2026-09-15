@@ -1,4 +1,4 @@
-/** Wintopay / CartaDiCreditoPay gateway helpers (server only). */
+/** CartaDiCreditoPay credit-card gateway helpers (server only). */
 
 export interface PaymentGatewayConfig {
   merchantId: string;
