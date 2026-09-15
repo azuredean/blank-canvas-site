@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import SubHeader from "../components/SubHeader";
 import type { CartRow } from "./CartPage";
 import type { OrderItem } from "../data";
-import { EU_COUNTRIES } from "../data";
+import { EU_COUNTRY_OPTIONS } from "@/lib/countries";
 import { cn } from "../utils/cn";
 import { createOrder, getIframeToken, processPayment } from "@/lib/checkout.functions";
 import { formatEur, priceOf, SHIPPING_COST } from "@/lib/prices";
@@ -69,6 +69,20 @@ function loadScript(src: string, id: string): Promise<void> {
     el.onerror = () => reject(new Error(`Failed to load ${src}`));
     document.body.appendChild(el);
   });
+}
+
+/** The gateway requires a device session id; the script may still be loading. */
+async function getShieldSessionId(attempts = 12): Promise<string | null> {
+  for (let i = 0; i < attempts; i++) {
+    try {
+      const id = window.cartaDiCreditoPayShield?.getSessionId();
+      if (id) return id;
+    } catch {
+      // keep retrying while the shield script initialises
+    }
+    await new Promise((r) => setTimeout(r, 250));
+  }
+  return null;
 }
 
 export default function CheckoutPage({ rows, onBack, onPlaceOrder, onViewOrders, onBrowse }: Props) {
@@ -171,11 +185,11 @@ export default function CheckoutPage({ rows, onBack, onPlaceOrder, onViewOrders,
         },
       });
 
-      let sessionId: string | undefined;
-      try {
-        sessionId = window.cartaDiCreditoPayShield?.getSessionId();
-      } catch {
-        sessionId = undefined;
+      const sessionId = await getShieldSessionId();
+      if (!sessionId) {
+        setPayError("Secure check could not start. Please refresh and try again.");
+        setSubmitting(false);
+        return;
       }
 
       const result = await pay({
@@ -183,7 +197,7 @@ export default function CheckoutPage({ rows, onBack, onPlaceOrder, onViewOrders,
           orderNumber: order.orderNumber,
           lookupToken: order.lookupToken,
           cardToken,
-          ...(sessionId ? { sessionId } : {}),
+          sessionId,
           userAgent: navigator.userAgent.slice(0, 400),
         },
       });
@@ -315,8 +329,8 @@ export default function CheckoutPage({ rows, onBack, onPlaceOrder, onViewOrders,
               <label className="mt-4 block text-xs font-bold tracking-[0.14em] text-mute">COUNTRY</label>
               <select className={cn(field, "appearance-none", errors.country && "border-[#c2453f]")} value={form.country} onChange={set("country")}>
                 <option value="">Select country…</option>
-                {EU_COUNTRIES.map((c) => (
-                  <option key={c} value={c}>{c}</option>
+                {EU_COUNTRY_OPTIONS.map((c) => (
+                  <option key={c.code} value={c.code}>{c.name}</option>
                 ))}
               </select>
               {errors.country && <p className="mt-1 text-[12px] font-bold text-[#c2453f]">{errors.country}</p>}

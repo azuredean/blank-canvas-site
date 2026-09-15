@@ -27,7 +27,11 @@ export const createOrder = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => createOrderSchema.parse(data))
   .handler(async ({ data }) => {
     const { PRODUCT_PRICES, SHIPPING_COST, CURRENCY } = await import("./prices.server");
+    const { toCountryCode } = await import("./countries");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const countryCode = toCountryCode(data.customer.country);
+    if (!countryCode) throw new Error("Unsupported delivery country");
 
     let subtotal = 0;
     const items = data.items.map((item) => {
@@ -55,7 +59,7 @@ export const createOrder = createServerFn({ method: "POST" })
       address: data.customer.address,
       city: data.customer.city,
       postal_code: data.customer.postal,
-      country: data.customer.country,
+      country: countryCode,
       phone: data.customer.phone ?? null,
     });
     if (error) throw new Error(error.message);
@@ -100,16 +104,24 @@ const processSchema = z.object({
   orderNumber: z.string().min(3).max(40),
   lookupToken: z.string().min(10).max(80),
   cardToken: z.string().min(4).max(400),
-  sessionId: z.string().max(200).optional(),
-  userAgent: z.string().max(400).optional(),
+  sessionId: z.string().min(4).max(200),
+  userAgent: z.string().min(1).max(400),
 });
 
 /** Charges the card token against the order total and records the gateway result. */
 export const processPayment = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => processSchema.parse(data))
   .handler(async ({ data }) => {
-    const { getPaymentConfig, signWithRSA, buildSignString, gatewayHeaders, mapGatewayStatus } =
-      await import("./cartadicreditopay.server");
+    const {
+      getPaymentConfig,
+      signWithRSA,
+      buildSignString,
+      gatewayHeaders,
+      mapGatewayStatus,
+      verifyResponseSignature,
+    } = await import("./cartadicreditopay.server");
+    const { toCountryCode } = await import("./countries");
+    const { getRequestHeader } = await import("@tanstack/react-start/server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const cfg = getPaymentConfig();
 
@@ -122,6 +134,20 @@ export const processPayment = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     if (!order) throw new Error("Order not found");
 
+    const countryCode = toCountryCode(order.country);
+    if (!countryCode) {
+      return { success: false as const, error: "Unsupported delivery country." };
+    }
+
+    const clientIp =
+      getRequestHeader("cf-connecting-ip") ??
+      getRequestHeader("x-real-ip") ??
+      (getRequestHeader("x-forwarded-for") ?? "").split(",")[0]?.trim() ??
+      "";
+    if (!clientIp) {
+      console.error("cartadicreditopay: missing client IP for order", order.order_number);
+    }
+
     const [firstName, ...rest] = order.customer_name.trim().split(/\s+/);
     const lastName = rest.join(" ") || firstName || "";
     const details = {
@@ -131,9 +157,9 @@ export const processPayment = createServerFn({ method: "POST" })
       address: order.address,
       city: order.city,
       state: order.city,
-      country: order.country,
-      postal_code: order.postal_code,
-      phone: order.phone ?? undefined,
+      country: countryCode,
+      postal_code: order.postal_code?.trim() || "000000",
+      phone: order.phone ?? "",
     };
 
     const orderItems = (order.items ?? []) as {
@@ -155,15 +181,15 @@ export const processPayment = createServerFn({ method: "POST" })
         sku: `${item.id}|${item.option}`,
         name: item.id,
         price: item.unit_price.toFixed(2),
-        quantity: item.qty,
+        quantity: String(item.qty),
         currency: order.currency,
       })),
       billing_details: details,
       shipping_details: details,
+      ip: clientIp,
       user_agent: data.userAgent,
       sid: data.sessionId,
       redirect_url: `${cfg.frontendUrl}/api/public/payment-return`,
-      notify_url: `${cfg.frontendUrl}/api/public/payment-webhook`,
     };
 
     const signData = buildSignString(paymentBody);
@@ -178,7 +204,26 @@ export const processPayment = createServerFn({ method: "POST" })
       },
       body: signData,
     });
-    const raw = (await res.json()) as Record<string, unknown>;
+    const bodyText = await res.text();
+
+    if (cfg.publicKey) {
+      const ok = await verifyResponseSignature(
+        bodyText,
+        res.headers.get("X-TIMESTAMP"),
+        res.headers.get("X-SIGNATURE"),
+        cfg.publicKey,
+      );
+      if (!ok) console.error("cartadicreditopay: payment response signature not verified");
+    }
+
+    let raw: Record<string, unknown>;
+    try {
+      raw = JSON.parse(bodyText) as Record<string, unknown>;
+    } catch {
+      console.error("cartadicreditopay payment response unparsable");
+      return { success: false as const, error: "Payment failed, please try again." };
+    }
+
     const success = raw["success"] === true && raw["code"] === "0000";
     if (!success) {
       console.error("cartadicreditopay payment failed", raw["code"], raw["message"]);
@@ -192,6 +237,7 @@ export const processPayment = createServerFn({ method: "POST" })
     const payload = ((outer["data"] as Record<string, unknown>) ?? outer) as Record<string, unknown>;
     const gatewayStatus = typeof payload["status"] === "string" ? payload["status"] : undefined;
     const paymentId = typeof payload["id"] === "string" ? payload["id"] : null;
+    const requestId = typeof payload["request_id"] === "string" ? payload["request_id"] : null;
     const redirectUrl =
       typeof payload["redirect_url"] === "string" ? payload["redirect_url"] : null;
     const mapped = mapGatewayStatus(gatewayStatus);
@@ -200,6 +246,7 @@ export const processPayment = createServerFn({ method: "POST" })
       .from("orders")
       .update({
         payment_id: paymentId,
+        request_id: requestId,
         gateway_status: gatewayStatus ?? null,
         status: mapped === "paid" ? "paid" : order.status === "paid" ? "paid" : mapped,
       })
@@ -212,6 +259,7 @@ export const processPayment = createServerFn({ method: "POST" })
       redirectUrl,
     };
   });
+
 
 const lookupSchema = z.object({
   orderNumber: z.string().min(3).max(40),

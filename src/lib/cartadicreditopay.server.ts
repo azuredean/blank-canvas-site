@@ -125,20 +125,34 @@ export function buildSignString(body: Record<string, unknown>): string {
   return JSON.stringify(sortAndClean(body));
 }
 
-const NUMERIC_CALLBACK_FIELDS = ["amount_value", "amount", "created", "timestamp"];
-
-/** Builds the verification string for an inbound callback payload. */
+/** Builds the verification string for an inbound callback payload (spec: drop sign_verify, sort, drop empty, compact JSON). */
 export function buildCallbackSignString(payload: Record<string, unknown>): string {
   const clone: Record<string, unknown> = { ...payload };
   delete clone["sign"];
   delete clone["sign_verify"];
-  for (const field of NUMERIC_CALLBACK_FIELDS) {
-    const value = clone[field];
-    if (typeof value === "string" && value.trim() !== "" && !Number.isNaN(Number(value))) {
-      clone[field] = Number(value);
-    }
-  }
   return buildSignString(clone);
+}
+
+/** Verifies the X-SIGNATURE the gateway returns on a payment response (body + X-TIMESTAMP). */
+export async function verifyResponseSignature(
+  bodyText: string,
+  timestamp: string | null,
+  signature: string | null,
+  publicKeyPem: string,
+): Promise<boolean> {
+  if (!signature || !publicKeyPem) return false;
+  let parsed: Record<string, unknown>;
+  try {
+    parsed = JSON.parse(bodyText) as Record<string, unknown>;
+  } catch {
+    return false;
+  }
+  const withTimestamp = { ...parsed, ...(timestamp ? { "X-TIMESTAMP": timestamp } : {}) };
+  const candidates = [buildSignString(withTimestamp), buildSignString(parsed)];
+  for (const candidate of candidates) {
+    if (await verifyRSASignature(candidate, signature, publicKeyPem)) return true;
+  }
+  return false;
 }
 
 export function gatewayHeaders(
@@ -156,6 +170,7 @@ export function gatewayHeaders(
   };
 }
 
+/** Documented statuses: pending, unpaid (3DS in progress), paid, failed, canceled. */
 export function mapGatewayStatus(status: string | undefined): "paid" | "cancelled" | "pending" {
   switch ((status ?? "").toLowerCase()) {
     case "paid":
@@ -165,7 +180,24 @@ export function mapGatewayStatus(status: string | undefined): "paid" | "cancelle
     case "canceled":
     case "cancelled":
       return "cancelled";
+    case "unpaid":
+    case "pending":
     default:
       return "pending";
   }
 }
+
+/** EUR/USD/GBP report amounts in minor units; JPY in major units. */
+export function amountMatches(
+  totalMajor: number,
+  currency: string,
+  amountValue: unknown,
+): boolean {
+  if (amountValue === null || amountValue === undefined || amountValue === "") return true;
+  const reported = Number(amountValue);
+  if (!Number.isFinite(reported)) return true;
+  const exponent = currency.toUpperCase() === "JPY" ? 0 : 2;
+  const expected = exponent === 0 ? Math.round(totalMajor) : Math.round(totalMajor * 100);
+  return Math.abs(expected - Math.round(reported)) < 1;
+}
+
