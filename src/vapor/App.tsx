@@ -18,7 +18,6 @@ import SupportPage from "./pages/SupportPage";
 import {
   BESTSELLERS,
   CATEGORIES,
-  FEATURED_ID,
   GRID_PRODUCTS,
   NEW_ARRIVALS,
   getProduct,

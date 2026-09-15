@@ -44,10 +44,10 @@ export default function Hero({ onOpen }: Props) {
     >
       <div className="grid h-full grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] md:grid-cols-2">
         <div className="relative z-10 flex min-w-0 flex-col justify-center px-5 pb-14 pt-5 md:px-14 md:pb-20 md:pt-12">
-          <p className="truncate font-display text-[22px] font-extrabold leading-tight md:text-[50px] md:leading-[1.04]">
+          <p className="line-clamp-2 font-display text-[19px] font-extrabold leading-tight md:text-[50px] md:leading-[1.04]">
             {product.name}
           </p>
-          <p className="mt-2 line-clamp-3 text-[10px] font-medium leading-relaxed text-card/65 md:mt-4 md:max-w-md md:text-[15px]">
+          <p className="mt-2 line-clamp-2 text-[10px] font-medium leading-relaxed text-card/65 md:mt-4 md:max-w-md md:line-clamp-3 md:text-[15px]">
             {product.desc}
           </p>
         </div>
