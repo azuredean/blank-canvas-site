@@ -81,12 +81,18 @@ export const getIframeToken = createServerFn({ method: "POST" }).handler(async (
     method: "GET",
     headers: gatewayHeaders(cfg, timestamp, signature),
   });
-  const result = (await res.json()) as {
+  const bodyText = await res.text();
+  let result: {
     success?: boolean;
     code?: string;
     message?: string;
     data?: { token?: string };
-  };
+  } = {};
+  try {
+    result = JSON.parse(bodyText);
+  } catch {
+    /* handled below */
+  }
 
   if (result.success && result.code === "0000" && result.data?.token) {
     return {
@@ -96,7 +102,7 @@ export const getIframeToken = createServerFn({ method: "POST" }).handler(async (
       shieldUrl: cfg.shieldUrl,
     };
   }
-  console.error("cartadicreditopay token failed", result.code, result.message);
+  console.error("cartadicreditopay token failed", res.status, bodyText.slice(0, 500));
   return { success: false as const, error: "Payment form unavailable, please retry." };
 });
 
