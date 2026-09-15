@@ -1,3 +1,4 @@
+/opt/homebrew/Library/Homebrew/cmd/shellenv.sh: line 21: /bin/ps: Operation not permitted
 export type Brand = "ELFBAR" | "Lost Mary" | "Fumot" | "JNR" | "Vozol";
 export type Kind = "Disposable" | "E-Liquid" | "Pod System";
 export type Stock = "in" | "limited" | "out";
@@ -41,7 +42,7 @@ export const PRODUCTS: Product[] = [
     brand: "ELFBAR",
     kind: "Disposable",
     badge: "NEW",
-    desc: "Flagship 45K puff disposable with a full fruit-and-ice lineup. Mesh coil, rechargeable, 5% nicotine.",
+    desc: "BC45000 5% disposable with 14 listed fruit, tea, soda, mint and ice flavor profiles.",
     options: unique([
       "Watermelon Ice",
       "Strawberry Grapefruit",
@@ -136,7 +137,7 @@ export const PRODUCTS: Product[] = [
     name: "ELFBAR RAYA D3 25K",
     brand: "ELFBAR",
     kind: "Disposable",
-    desc: "RAYA D3 with a wide 20-flavor menu covering apple, grape, peach and ice classics.",
+    desc: "RAYA D3 with a wide 21-flavor menu covering apple, grape, peach and ice classics.",
     options: unique([
       "Double Apple",
       "Grape Ice",
@@ -209,7 +210,7 @@ export const PRODUCTS: Product[] = [
     brand: "ELFBAR",
     kind: "Disposable",
     badge: "LOW",
-    desc: "Trio 40K three-mode disposable. Limited warehouse stock — confirm allocation on your quote.",
+    desc: "Trio 40K with 16 listed fruit, mint and citrus flavors. Limited warehouse stock — confirm allocation on your quote.",
     options: unique([
       "Strawberry Orange Lime",
       "LA Grape",
@@ -392,7 +393,7 @@ export const PRODUCTS: Product[] = [
     specs: [
       ["Puffs", "12,000"],
       ["E-liquid", "20 ml"],
-      ["Battery", "550 mAh · USB-C"],
+      ["Battery", "550 mAh rechargeable"],
       ["Coil", "0.8 Ω mesh"],
       ["Carton", "200 pcs · 18 kg · 69.1×32×23.8 cm"],
     ],
@@ -544,15 +545,15 @@ export const PRODUCTS: Product[] = [
     name: "JNR Areo X",
     brand: "JNR",
     kind: "Pod System",
-    desc: "TPD-certified 2 + 10 ml refillable pod system. Two refills for up to 32K puffs, 1.10 dual mesh, visible e-liquid.",
+    desc: "TPD-certified 2 + 10 ml refillable pod system. Two refills for up to 32K puffs, 1.1 Ω dual mesh, visible e-liquid.",
     options: ["2%"],
     optionLabel: "NICOTINE",
     specs: [
       ["Puffs", "Up to 32,000"],
       ["Fill", "2 ml pod + 10 ml bottle"],
-      ["Coil", "1.10 dual mesh"],
+      ["Coil", "1.1 Ω dual mesh"],
       ["Cert", "TPD"],
-      ["Carton", "100 devices + 200 bottles · ~15 kg"],
+      ["Carton", "100 devices + 200 bottles · 15 kg"],
     ],
     stock: "in",
     image: img("jnr-areo-x"),
@@ -571,7 +572,7 @@ export const PRODUCTS: Product[] = [
       ["Fill", "2 ml pod + 10 ml bottle"],
       ["Battery", "800 mAh · Type-C"],
       ["Nicotine", "2%"],
-      ["Carton", "200 pcs · 18.35 kg"],
+      ["Carton", "200 pcs · 18.348 kg"],
     ],
     stock: "in",
     image: img("jnr-fox-10000"),
@@ -666,7 +667,8 @@ export const PRODUCTS: Product[] = [
       ["Coil", "Triple 1.0 Ω mesh"],
       ["Battery", "1300 mAh"],
       ["Nicotine", "3%"],
-      ["Carton", "100 pcs · ~23.15 kg · 540×280×440 mm"],
+      ["Carton", "100 pcs · 540×280×440 mm"],
+      ["Weight", "23.15 kg reference only"],
     ],
     stock: "in",
     image: img("jnr-crown-shisha-100k"),
@@ -677,7 +679,7 @@ export const PRODUCTS: Product[] = [
     name: "JNR Rage Gorilla 55K",
     brand: "JNR",
     kind: "Disposable",
-    desc: "Rage Gorilla 55K (also listed as Age Gorilla). 42 ml, dual mesh, 2% nicotine, 950 mAh.",
+    desc: "Rage Gorilla 55K with 42 ml capacity, dual mesh, 2% nicotine and a 950 mAh battery.",
     options: ["2%"],
     optionLabel: "NICOTINE",
     specs: [
@@ -856,7 +858,7 @@ export const PRODUCTS: Product[] = [
     name: "VOZOL Star 40K",
     brand: "Vozol",
     kind: "Disposable",
-    desc: "Star 40K (50 mg) — 23 flavors, 1000 mAh, 20 ml. Carton 200 pcs / 23.3 kg.",
+    desc: "Star 40K (50 mg) with 23 listed flavors, a 1000 mAh battery and 20 ml capacity. The supplied specification rates it for up to 20,000 puffs.",
     options: unique([
       "Blue Razz Ice",
       "Blueberry Ice",
@@ -884,7 +886,7 @@ export const PRODUCTS: Product[] = [
     ]),
     optionLabel: "FLAVOR",
     specs: [
-      ["Puffs", "40,000"],
+      ["Puffs", "20,000"],
       ["E-liquid", "20 ml"],
       ["Battery", "1000 mAh"],
       ["Nicotine", "50 mg"],
@@ -892,7 +894,7 @@ export const PRODUCTS: Product[] = [
     ],
     stock: "in",
     image: img("vozol-star-40k"),
-    puffs: "40K",
+    puffs: "20K",
   },
   {
     id: "vozol-gear-50k",
