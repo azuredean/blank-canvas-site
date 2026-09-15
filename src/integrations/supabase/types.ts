@@ -32,6 +32,7 @@ export type Database = {
           payment_id: string | null
           phone: string | null
           postal_code: string
+          request_id: string | null
           shipping: number
           status: string
           subtotal: number
@@ -55,6 +56,7 @@ export type Database = {
           payment_id?: string | null
           phone?: string | null
           postal_code: string
+          request_id?: string | null
           shipping?: number
           status?: string
           subtotal?: number
@@ -78,6 +80,7 @@ export type Database = {
           payment_id?: string | null
           phone?: string | null
           postal_code?: string
+          request_id?: string | null
           shipping?: number
           status?: string
           subtotal?: number
