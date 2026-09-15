@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PaymentReturnRouteImport } from './routes/payment-return'
 import { Route as ApiPublicPaymentReturnRouteImport } from './routes/api/public/payment-return'
 import { Route as ApiPublicPaymentWebhookRouteImport } from './routes/api/public/payment-webhook'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaymentReturnRoute = PaymentReturnRouteImport.update({
+  id: '/payment-return',
+  path: '/payment-return',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicPaymentReturnRoute = ApiPublicPaymentReturnRouteImport.update({
@@ -31,34 +37,47 @@ const ApiPublicPaymentWebhookRoute = ApiPublicPaymentWebhookRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/payment-return': typeof PaymentReturnRoute
   '/api/public/payment-return': typeof ApiPublicPaymentReturnRoute
   '/api/public/payment-webhook': typeof ApiPublicPaymentWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/payment-return': typeof PaymentReturnRoute
   '/api/public/payment-return': typeof ApiPublicPaymentReturnRoute
   '/api/public/payment-webhook': typeof ApiPublicPaymentWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/payment-return': typeof PaymentReturnRoute
   '/api/public/payment-return': typeof ApiPublicPaymentReturnRoute
   '/api/public/payment-webhook': typeof ApiPublicPaymentWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/public/payment-return' | '/api/public/payment-webhook'
+  fullPaths:
+    | '/'
+    | '/payment-return'
+    | '/api/public/payment-return'
+    | '/api/public/payment-webhook'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/public/payment-return' | '/api/public/payment-webhook'
+  to:
+    | '/'
+    | '/payment-return'
+    | '/api/public/payment-return'
+    | '/api/public/payment-webhook'
   id:
     | '__root__'
     | '/'
+    | '/payment-return'
     | '/api/public/payment-return'
     | '/api/public/payment-webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  PaymentReturnRoute: typeof PaymentReturnRoute
   ApiPublicPaymentReturnRoute: typeof ApiPublicPaymentReturnRoute
   ApiPublicPaymentWebhookRoute: typeof ApiPublicPaymentWebhookRoute
 }
@@ -70,6 +89,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payment-return': {
+      id: '/payment-return'
+      path: '/payment-return'
+      fullPath: '/payment-return'
+      preLoaderRoute: typeof PaymentReturnRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/payment-return': {
@@ -91,6 +117,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  PaymentReturnRoute: PaymentReturnRoute,
   ApiPublicPaymentReturnRoute: ApiPublicPaymentReturnRoute,
   ApiPublicPaymentWebhookRoute: ApiPublicPaymentWebhookRoute,
 }
