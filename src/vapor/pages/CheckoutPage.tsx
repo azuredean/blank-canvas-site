@@ -102,9 +102,8 @@ export default function CheckoutPage({ rows, onBack, onPlaceOrder, onViewOrders,
           setIframeError(res.error);
           return;
         }
-        const urls = SDK_URLS[res.env === "production" ? "production" : "sandbox"];
-        await loadScript(urls.sdk, "cdc-sdk");
-        loadScript(urls.shield, "cdc-shield").catch(() => undefined);
+        await loadScript(res.sdkUrl, "cdc-sdk");
+        loadScript(res.shieldUrl, "cdc-shield").catch(() => undefined);
         if (cancelled || !window.Cartadicreditopay) {
           setIframeError("Card form unavailable, please refresh.");
           return;
