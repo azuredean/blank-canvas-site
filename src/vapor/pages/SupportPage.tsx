@@ -96,7 +96,7 @@ export default function SupportPage({ onBack }: Props) {
             {CONTACT.info}
           </a>
           <p className="text-[11px] font-semibold text-mute">
-            Trade desk · {CONTACT.trade} · Replies within 24 h · Mon–Fri
+            Replies within 24 h · Mon–Fri
           </p>
         </div>
       </main>

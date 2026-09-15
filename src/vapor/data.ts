@@ -1093,11 +1093,10 @@ export const EU_COUNTRIES = [
 export const FEATURED_ID = "vozol-neon-60k";
 
 export const CONTACT = {
-  company: "VAPOR Labs GmbH",
+  company: "Vapofolio",
   city: "Berlin, Germany",
   address: "Friedrichstraße 123, 10117 Berlin",
-  info: "info@vaporlabs.eu",
-  trade: "trade@vaporlabs.eu",
+  info: "support@vapofolio.com",
 };
 
 export const BESTSELLER_IDS = [

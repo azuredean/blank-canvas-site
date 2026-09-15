@@ -40,7 +40,7 @@ export function MenuDrawer({ open, onClose, onNavigate, onPickCategory }: Drawer
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <Logo className="h-9 w-9" />
-            <span className="font-display text-lg font-extrabold tracking-tight">VAPOR</span>
+            <span className="font-display text-lg font-extrabold tracking-tight">Vapofolio</span>
           </div>
           <button
             onClick={onClose}

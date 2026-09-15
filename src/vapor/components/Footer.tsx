@@ -41,7 +41,7 @@ export default function Footer({ onSupport }: Props) {
                 </p>
                 <p className="mt-0.5 text-[12px] font-semibold text-mute">B2B wholesale catalog · Adult trade only</p>
 
-                <p className="mt-4 text-[11px] font-bold tracking-[0.14em] text-mute">INFORMATION DESK</p>
+                <p className="mt-4 text-[11px] font-bold tracking-[0.14em] text-mute">CONTACT</p>
                 <a
                   href={`mailto:${CONTACT.info}`}
                   className="mt-1 inline-flex items-center gap-2 font-display text-[15px] font-extrabold tracking-tight underline decoration-lemon decoration-2 underline-offset-4 transition hover:decoration-ink"
@@ -49,12 +49,6 @@ export default function Footer({ onSupport }: Props) {
                   <Mail className="size-4" strokeWidth={2.4} />
                   {CONTACT.info}
                 </a>
-                <p className="mt-2 text-[11px] font-semibold text-mute">
-                  Trade quotes ·{" "}
-                  <a href={`mailto:${CONTACT.trade}`} className="text-ink underline decoration-line underline-offset-2">
-                    {CONTACT.trade}
-                  </a>
-                </p>
               </div>
             </div>
 
@@ -140,9 +134,7 @@ export default function Footer({ onSupport }: Props) {
                 <br />
                 {CONTACT.city}
                 <br />
-                Information: {CONTACT.info}
-                <br />
-                Trade desk: {CONTACT.trade}
+                Contact: {CONTACT.info}
                 <br />
                 VAT ID is shown on invoice. Responsible for content: the managing directors at the
                 Berlin address above (§ 5 DDG / § 18 MStV).

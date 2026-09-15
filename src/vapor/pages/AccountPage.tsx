@@ -43,7 +43,7 @@ export default function AccountPage({
               <Logo className="h-14 w-14" />
             </div>
             <h2 className="mt-5 font-display text-2xl font-extrabold tracking-tight md:text-3xl">
-              Sign in to VAPOR
+              Sign in to Vapofolio
             </h2>
             <p className="mt-2 text-sm font-medium text-mute">
               Track quotes, sync your wishlist and speed through enquiries.
