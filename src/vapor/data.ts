@@ -1,4 +1,3 @@
-/opt/homebrew/Library/Homebrew/cmd/shellenv.sh: line 21: /bin/ps: Operation not permitted
 export type Brand = "ELFBAR" | "Lost Mary" | "Fumot" | "JNR" | "Vozol";
 export type Kind = "Disposable" | "E-Liquid" | "Pod System";
 export type Stock = "in" | "limited" | "out";
