@@ -8,6 +8,9 @@ export interface PaymentGatewayConfig {
   siteDomain: string;
   apiBase: string;
   frontendUrl: string;
+  /** Browser SDK URLs, resolved server-side so the client never picks an environment. */
+  sdkUrl: string;
+  shieldUrl: string;
 }
 
 export function getPaymentConfig(): PaymentGatewayConfig {
@@ -33,6 +36,14 @@ export function getPaymentConfig(): PaymentGatewayConfig {
       env === "production"
         ? "https://api.cartadicreditopay.com"
         : "https://stg-gateway.wintopay.com",
+    sdkUrl:
+      env === "production"
+        ? "https://widget.cartadicreditopay.com/iframe.js"
+        : "https://stg-gateway.wintopay.com/icashier/iframe.js",
+    shieldUrl:
+      env === "production"
+        ? "https://js.cartadicreditopay.com/js/shield/v3"
+        : "https://stage-js.wintopay.com/js/shield/v3",
   };
 }
 
