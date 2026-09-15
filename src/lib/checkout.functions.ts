@@ -59,7 +59,7 @@ export const createOrder = createServerFn({ method: "POST" })
       address: data.customer.address,
       city: data.customer.city,
       postal_code: data.customer.postal,
-      country: data.customer.country,
+      country: countryCode,
       phone: data.customer.phone ?? null,
     });
     if (error) throw new Error(error.message);
