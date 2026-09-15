@@ -85,7 +85,12 @@ export const getIframeToken = createServerFn({ method: "POST" }).handler(async (
   };
 
   if (result.success && result.code === "0000" && result.data?.token) {
-    return { success: true as const, token: result.data.token, env: cfg.env };
+    return {
+      success: true as const,
+      token: result.data.token,
+      sdkUrl: cfg.sdkUrl,
+      shieldUrl: cfg.shieldUrl,
+    };
   }
   console.error("cartadicreditopay token failed", result.code, result.message);
   return { success: false as const, error: "Payment form unavailable, please retry." };
