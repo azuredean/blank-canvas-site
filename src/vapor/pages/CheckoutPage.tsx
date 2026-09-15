@@ -106,19 +106,21 @@ export default function CheckoutPage({ rows, onBack, onPlaceOrder, onViewOrders,
   useEffect(() => {
     if (mountedOnce.current || rows.length === 0) return;
     mountedOnce.current = true;
-    let cancelled = false;
 
     (async () => {
       try {
         const res = await fetchToken({});
-        if (cancelled) return;
         if (!res.success) {
           setIframeError(res.error);
           return;
         }
         await loadScript(res.sdkUrl, "cdc-sdk");
         loadScript(res.shieldUrl, "cdc-shield").catch(() => undefined);
-        if (cancelled || !window.Cartadicreditopay) {
+        // The SDK attaches its global a tick after the script's load event.
+        for (let i = 0; i < 20 && !window.Cartadicreditopay; i++) {
+          await new Promise((r) => setTimeout(r, 150));
+        }
+        if (!window.Cartadicreditopay) {
           setIframeError("Card form unavailable, please refresh.");
           return;
         }
@@ -128,15 +130,12 @@ export default function CheckoutPage({ rows, onBack, onPlaceOrder, onViewOrders,
           style: { base: { backgroundColor: "#ffffff", color: "#161616", fontSize: "14px" } },
         });
         await card.mount("#cartadicreditopay-card-element");
-        if (!cancelled) setCardMounted(true);
-      } catch {
-        if (!cancelled) setIframeError("Card form unavailable, please refresh.");
+        setCardMounted(true);
+      } catch (err) {
+        console.error("card form init failed", err);
+        setIframeError("Card form unavailable, please refresh.");
       }
     })();
-
-    return () => {
-      cancelled = true;
-    };
   }, [fetchToken, rows.length]);
 
   const set = (k: keyof Form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
