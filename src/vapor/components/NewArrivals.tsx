@@ -13,9 +13,9 @@ interface Props {
 }
 
 export default function NewArrivals({ products, wishlist, onAdd, onOpen, onToggleWish }: Props) {
-  if (products.length === 0) return null;
-
   const featured = products[0];
+  if (!featured) return null;
+
   const rest = products.slice(1);
 
   return (
