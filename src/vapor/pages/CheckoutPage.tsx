@@ -60,7 +60,7 @@ export default function CheckoutPage({ rows, onBack, onPlaceOrder, onViewOrders,
     return (
       <>
         <SubHeader title="Quote sent" onBack={onBrowse} />
-        <main className="mx-auto max-w-[560px] px-4 pb-44 pt-10 md:pb-28">
+        <main className="mx-auto max-w-[560px] px-4 pb-8 pt-10">
           <div className="animate-rise rounded-[28px] bg-card p-8 text-center md:p-10">
             <span className="animate-pop mx-auto grid size-20 place-items-center rounded-full bg-lemon text-ink">
               <Check className="size-9" strokeWidth={3} />
@@ -116,7 +116,7 @@ export default function CheckoutPage({ rows, onBack, onPlaceOrder, onViewOrders,
     <>
       <SubHeader title="Request quote" onBack={onBack} />
 
-      <main className="mx-auto max-w-[760px] px-4 pb-44 pt-5 md:pb-28 md:pt-8">
+      <main className="mx-auto max-w-[760px] px-4 pb-8 pt-5 md:pt-8">
         <div className="grid gap-5 md:grid-cols-[1fr_320px]">
           <div className="animate-rise rounded-[24px] bg-card p-5 md:p-6">
             <h3 className="font-display text-lg font-extrabold tracking-tight">Trade details</h3>

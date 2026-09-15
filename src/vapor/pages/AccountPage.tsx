@@ -36,7 +36,7 @@ export default function AccountPage({
     <>
       <SubHeader title="Account" onBack={onBack} />
 
-      <main className="mx-auto max-w-[760px] px-4 pb-44 pt-5 md:pb-28 md:pt-8">
+      <main className="mx-auto max-w-[760px] px-4 pb-8 pt-5 md:pt-8">
         {!user ? (
           <div className="animate-rise rounded-[28px] bg-card p-7 text-center md:p-10">
             <div className="flex justify-center">
@@ -80,7 +80,7 @@ export default function AccountPage({
           <div className="flex flex-col gap-4">
             <div className="animate-rise flex items-center gap-4 rounded-[28px] bg-card p-6">
               <span className="grid size-14 shrink-0 place-items-center rounded-full bg-ink font-display text-xl font-extrabold text-lemon">
-                {(user.email[0] ?? "V").toUpperCase()}
+                {user.email[0].toUpperCase()}
               </span>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[15px] font-bold">{user.email}</p>

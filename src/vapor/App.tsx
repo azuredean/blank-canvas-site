@@ -6,6 +6,9 @@ import BottomNav, { type Tab } from "./components/BottomNav";
 import { MenuDrawer, SearchOverlay, Toast } from "./components/Overlays";
 import AgeGate from "./components/AgeGate";
 import Footer from "./components/Footer";
+import SectionTitle from "./components/SectionTitle";
+import PromoBanner from "./components/PromoBanner";
+import NewArrivals from "./components/NewArrivals";
 import ProductDetail from "./pages/ProductDetail";
 import CartPage, { type CartRow } from "./pages/CartPage";
 import WishlistPage from "./pages/WishlistPage";
@@ -13,9 +16,11 @@ import AccountPage from "./pages/AccountPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import SupportPage from "./pages/SupportPage";
 import {
+  BESTSELLERS,
   CATEGORIES,
   FEATURED_ID,
   GRID_PRODUCTS,
+  NEW_ARRIVALS,
   getProduct,
   type Filter,
   type Order,
@@ -141,17 +146,16 @@ export default function App() {
     }
     setCart((prev) => {
       const i = prev.findIndex((c) => c.id === id && c.option === option);
-      const existing = prev[i];
-      if (i >= 0 && existing) {
+      if (i >= 0) {
         const next = [...prev];
-        next[i] = { ...existing, qty: Math.min(99, existing.qty + qty) };
+        next[i] = { ...next[i], qty: Math.min(99, next[i].qty + qty) };
         return next;
       }
       return [...prev, { id, option, qty }];
     });
     showToast(`${p.name} added to quote`);
   };
-  const addProduct = (p: Product) => addToCart(p.id, p.options[0] ?? "Default", 1);
+  const addProduct = (p: Product) => addToCart(p.id, p.options[0], 1);
 
   const changeQty = (id: string, option: string, delta: number) => {
     setCart((prev) =>
@@ -263,50 +267,95 @@ export default function App() {
       {route.name === "home" && (
         <>
           <TopBar onMenu={() => setMenuOpen(true)} onSearch={() => setSearchOpen(true)} />
-          <main className="mx-auto max-w-[1400px] px-4 pb-36 pt-5 md:px-8 md:pb-44 md:pt-9">
+          <main className="mx-auto max-w-[1400px] px-4 pb-8 pt-5 md:px-8 md:pt-9">
             <Hero onBuy={() => navigate({ name: "product", id: FEATURED_ID })} />
 
-            <div className="no-scrollbar mt-7 flex gap-2.5 overflow-x-auto pb-1 md:mt-10 md:gap-3">
-              {CATEGORIES.map((c) => {
-                const active = filter === c;
-                return (
+            <section className="mt-10 md:mt-14">
+              <SectionTitle
+                kicker="BESTSELLERS"
+                title="Most requested"
+                action={
                   <button
-                    key={c}
-                    onClick={() => setFilter(c)}
-                    className={
-                      "whitespace-nowrap rounded-full px-5 py-2.5 text-sm font-bold transition-all duration-200 active:scale-95 md:px-6 md:py-3 " +
-                      (active
-                        ? "bg-ink text-lemon shadow-[0_10px_22px_-12px_rgba(22,22,15,0.6)]"
-                        : "border border-line bg-card text-ink hover:border-ink/35")
-                    }
+                    type="button"
+                    onClick={() => document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth" })}
+                    className="hidden text-[13px] font-bold text-mute transition hover:text-ink md:block"
                   >
-                    {c}
+                    See catalog
                   </button>
-                );
-              })}
+                }
+              />
+              <div className="grid grid-cols-2 gap-3.5 md:grid-cols-4 md:gap-5">
+                {BESTSELLERS.map((p, i) => (
+                  <ProductCard
+                    key={p.id}
+                    product={p}
+                    index={i}
+                    rank={i + 1}
+                    wishlisted={wishlist.includes(p.id)}
+                    onAdd={addProduct}
+                    onOpen={openProduct}
+                    onToggleWish={toggleWish}
+                  />
+                ))}
+              </div>
+            </section>
+
+            <div className="mt-10 md:mt-14">
+              <PromoBanner onOpen={openProduct} />
             </div>
 
-            <div key={filter} className="mt-5 grid grid-cols-2 gap-3.5 md:mt-8 md:grid-cols-4 md:gap-5">
-              {filtered.map((p, i) => (
-                <ProductCard
-                  key={p.id}
-                  product={p}
-                  index={i}
-                  wishlisted={wishlist.includes(p.id)}
-                  onAdd={addProduct}
-                  onOpen={openProduct}
-                  onToggleWish={toggleWish}
-                />
-              ))}
+            <div className="mt-10 md:mt-14">
+              <NewArrivals
+                products={NEW_ARRIVALS}
+                wishlist={wishlist}
+                onAdd={addProduct}
+                onOpen={openProduct}
+                onToggleWish={toggleWish}
+              />
             </div>
 
-            {filtered.length === 0 && (
-              <p className="animate-fade py-20 text-center text-sm font-semibold text-mute">
-                No products in this brand yet.
-              </p>
-            )}
+            <section id="catalog" className="mt-10 scroll-mt-4 md:mt-14">
+              <SectionTitle kicker="CATALOG" title="All devices" />
+              <div className="no-scrollbar flex gap-2.5 overflow-x-auto pb-1 md:gap-3">
+                {CATEGORIES.map((c) => {
+                  const active = filter === c;
+                  return (
+                    <button
+                      key={c}
+                      onClick={() => setFilter(c)}
+                      className={
+                        "whitespace-nowrap rounded-full px-5 py-2.5 text-sm font-bold transition-all duration-200 active:scale-95 md:px-6 md:py-3 " +
+                        (active
+                          ? "bg-ink text-lemon shadow-[0_10px_22px_-12px_rgba(22,22,15,0.6)]"
+                          : "border border-line bg-card text-ink hover:border-ink/35")
+                      }
+                    >
+                      {c}
+                    </button>
+                  );
+                })}
+              </div>
 
-            <Footer />
+              <div key={filter} className="mt-5 grid grid-cols-2 gap-3.5 md:mt-8 md:grid-cols-4 md:gap-5">
+                {filtered.map((p, i) => (
+                  <ProductCard
+                    key={p.id}
+                    product={p}
+                    index={i}
+                    wishlisted={wishlist.includes(p.id)}
+                    onAdd={addProduct}
+                    onOpen={openProduct}
+                    onToggleWish={toggleWish}
+                  />
+                ))}
+              </div>
+
+              {filtered.length === 0 && (
+                <p className="animate-fade py-20 text-center text-sm font-semibold text-mute">
+                  No products in this brand yet.
+                </p>
+              )}
+            </section>
           </main>
         </>
       )}
@@ -384,6 +433,10 @@ export default function App() {
       )}
 
       {route.name === "support" && <SupportPage onBack={goHome} />}
+
+      <div className="mx-auto max-w-[1400px] px-4 pb-36 md:px-8 md:pb-44">
+        <Footer onSupport={() => navigate({ name: "support" })} />
+      </div>
 
       <BottomNav active={activeTab} cartCount={cartCount} onChange={handleTab} />
 

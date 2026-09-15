@@ -9,17 +9,30 @@ interface Props {
   onAdd: (p: Product) => void;
   onOpen: (id: string) => void;
   onToggleWish: (id: string) => void;
+  rank?: number;
 }
 
-export default function ProductCard({ product, index, wishlisted, onAdd, onOpen, onToggleWish }: Props) {
+export default function ProductCard({
+  product,
+  index,
+  wishlisted,
+  onAdd,
+  onOpen,
+  onToggleWish,
+  rank,
+}: Props) {
   const out = product.stock === "out";
   return (
     <article
-      className="group animate-rise relative flex cursor-pointer flex-col rounded-[24px] bg-card p-4 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_26px_48px_-30px_rgba(22,22,15,0.35)] md:rounded-[28px] md:p-5"
+      className="group animate-rise relative flex h-full cursor-pointer flex-col rounded-[24px] bg-card p-4 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_26px_48px_-30px_rgba(22,22,15,0.35)] md:rounded-[28px] md:p-5"
       style={{ animationDelay: `${100 + index * 40}ms` }}
       onClick={() => onOpen(product.id)}
     >
-      {product.badge && (
+      {rank != null ? (
+        <span className="absolute left-4 top-4 z-10 grid size-8 place-items-center rounded-full bg-lemon font-display text-[13px] font-extrabold text-ink md:left-5 md:top-5">
+          {rank}
+        </span>
+      ) : product.badge ? (
         <span
           className={
             "absolute left-4 top-4 z-10 rounded-lg px-2.5 py-1 text-[11px] font-extrabold tracking-wide md:left-5 md:top-5 " +
@@ -32,7 +45,7 @@ export default function ProductCard({ product, index, wishlisted, onAdd, onOpen,
         >
           {product.badge}
         </span>
-      )}
+      ) : null}
 
       <button
         onClick={(e) => {
