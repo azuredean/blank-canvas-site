@@ -327,7 +327,7 @@ export default function CheckoutPage({ rows, onBack, onPlaceOrder, onViewOrders,
 
             <div className="animate-rise rounded-[24px] bg-card p-5 md:p-6" style={{ animationDelay: "60ms" }}>
               <h3 className="flex items-center gap-2 font-display text-lg font-extrabold tracking-tight">
-                <CreditCard className="size-5" strokeWidth={2.2} /> Card payment
+                <CreditCard className="size-5" strokeWidth={2.2} /> Credit card
               </h3>
               <div className="mt-4 rounded-2xl border border-line bg-white p-3">
                 <div id="cartadicreditopay-card-element" className="min-h-[210px]" />
