@@ -14,7 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      orders: {
+        Row: {
+          address: string
+          city: string
+          country: string
+          created_at: string
+          currency: string
+          customer_email: string
+          customer_name: string
+          gateway_payload: Json | null
+          gateway_status: string | null
+          id: string
+          items: Json
+          lookup_token: string
+          order_number: string
+          payment_id: string | null
+          phone: string | null
+          postal_code: string
+          shipping: number
+          status: string
+          subtotal: number
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          city: string
+          country: string
+          created_at?: string
+          currency?: string
+          customer_email: string
+          customer_name: string
+          gateway_payload?: Json | null
+          gateway_status?: string | null
+          id?: string
+          items?: Json
+          lookup_token: string
+          order_number: string
+          payment_id?: string | null
+          phone?: string | null
+          postal_code: string
+          shipping?: number
+          status?: string
+          subtotal?: number
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          city?: string
+          country?: string
+          created_at?: string
+          currency?: string
+          customer_email?: string
+          customer_name?: string
+          gateway_payload?: Json | null
+          gateway_status?: string | null
+          id?: string
+          items?: Json
+          lookup_token?: string
+          order_number?: string
+          payment_id?: string | null
+          phone?: string | null
+          postal_code?: string
+          shipping?: number
+          status?: string
+          subtotal?: number
+          total?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
