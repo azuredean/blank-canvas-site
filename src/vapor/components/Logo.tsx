@@ -5,7 +5,7 @@ interface Props {
 /** Vape-themed mark: a device capsule on a lemon disc with rising vapor wisps. */
 export default function Logo({ className = "h-9 w-9" }: Props) {
   return (
-    <svg viewBox="0 0 48 48" className={className} aria-label="Vapor logo">
+    <svg viewBox="0 0 48 48" className={className} aria-label="Vapofolio logo">
       <circle cx="24" cy="28" r="12" fill="var(--color-lemon)" />
 
       <g

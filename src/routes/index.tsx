@@ -5,17 +5,17 @@ import VaporApp from "../vapor/App";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "VAPOR — EU Wholesale Catalog" },
+      { title: "Vapofolio — EU Wholesale Catalog" },
       {
         name: "description",
         content:
           "EU wholesale catalog of ELFBAR, JNR, VOZOL, Fumot and Lost Mary devices. Adults 18+ only. Prices on request.",
       },
-      { property: "og:title", content: "VAPOR — EU Wholesale Catalog" },
+      { property: "og:title", content: "Vapofolio — EU Wholesale Catalog" },
       {
         property: "og:description",
         content:
-          "Browse the VAPOR EU wholesale catalog: ELFBAR, JNR, VOZOL, Fumot and Lost Mary. Adults 18+ only.",
+          "Browse the Vapofolio EU wholesale catalog: ELFBAR, JNR, VOZOL, Fumot and Lost Mary. Adults 18+ only.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
