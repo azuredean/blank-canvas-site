@@ -131,7 +131,7 @@ function parsePem(pem: string, kind: "private" | "public"): ArrayBuffer {
 export async function signWithRSA(data: string, privateKeyPem: string): Promise<string> {
   const key = await crypto.subtle.importKey(
     "pkcs8",
-    parsePem(privateKeyPem),
+    parsePem(privateKeyPem, "private"),
     { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
     false,
     ["sign"],
@@ -148,7 +148,7 @@ export async function verifyRSASignature(
   try {
     const key = await crypto.subtle.importKey(
       "spki",
-      parsePem(publicKeyPem),
+      parsePem(publicKeyPem, "public"),
       { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
       false,
       ["verify"],
