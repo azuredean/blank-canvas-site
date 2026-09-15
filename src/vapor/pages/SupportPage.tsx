@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ChevronDown, LifeBuoy, Mail } from "lucide-react";
 import SubHeader from "../components/SubHeader";
+import { CONTACT } from "../data";
 
 const FAQS = [
   {
@@ -36,7 +37,7 @@ export default function SupportPage({ onBack }: Props) {
     <>
       <SubHeader title="Safety & Support" onBack={onBack} />
 
-      <main className="mx-auto max-w-[760px] px-4 pb-44 pt-5 md:pb-28 md:pt-8">
+      <main className="mx-auto max-w-[760px] px-4 pb-8 pt-5 md:pt-8">
         <div className="animate-rise flex items-center gap-3 rounded-[28px] bg-ink p-6 text-white md:p-7">
           <span className="grid size-11 shrink-0 place-items-center rounded-full bg-lemon text-ink">
             <LifeBuoy className="size-5" strokeWidth={2.3} />
@@ -89,12 +90,14 @@ export default function SupportPage({ onBack }: Props) {
           <Mail className="size-6 text-mute" strokeWidth={2} />
           <p className="text-sm font-bold">Still need help?</p>
           <a
-            href="mailto:trade@vaporlabs.eu"
+            href={`mailto:${CONTACT.info}`}
             className="text-[15px] font-extrabold underline decoration-lemon decoration-2 underline-offset-4 transition hover:decoration-ink"
           >
-            trade@vaporlabs.eu
+            {CONTACT.info}
           </a>
-          <p className="text-[11px] font-semibold text-mute">Replies within 24 h · Mon–Fri</p>
+          <p className="text-[11px] font-semibold text-mute">
+            Trade desk · {CONTACT.trade} · Replies within 24 h · Mon–Fri
+          </p>
         </div>
       </main>
     </>

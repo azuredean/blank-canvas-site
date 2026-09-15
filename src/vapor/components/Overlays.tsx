@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Check, Plus, Search, X } from "lucide-react";
 import Logo from "./Logo";
 import ProductVisual from "./ProductVisual";
-import { CATEGORIES, GRID_PRODUCTS, type Filter, type Product } from "../data";
+import { CATEGORIES, CONTACT, GRID_PRODUCTS, type Filter, type Product } from "../data";
 
 export const NAV_LINKS = [
   "Home",
@@ -82,7 +82,11 @@ export function MenuDrawer({ open, onClose, onNavigate, onPickCategory }: Drawer
         <p className="mt-auto px-4 text-[11px] leading-relaxed text-mute">
           18+ only · Wholesale catalog.
           <br />
-          Nicotine is highly addictive. © 2026 Vapor Labs GmbH.
+          <a href={`mailto:${CONTACT.info}`} className="font-bold text-ink">
+            {CONTACT.info}
+          </a>
+          <br />
+          Nicotine is highly addictive. © {new Date().getFullYear()} {CONTACT.company}.
         </p>
       </aside>
     </>

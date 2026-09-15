@@ -54,7 +54,7 @@ export default function ProductDetail({ id, onBack, onAdd, onOpen, wishlisted, o
         }
       />
 
-      <main className="mx-auto max-w-[1100px] px-4 pb-44 pt-5 md:pb-24 md:pt-8">
+      <main className="mx-auto max-w-[1100px] px-4 pb-8 pt-5 md:pt-8">
         <div className="grid gap-6 md:grid-cols-2 md:gap-10">
           <div className="hero-tint animate-rise relative flex h-72 items-center justify-center rounded-[28px] p-6 md:h-[440px] md:rounded-[36px]">
             {product.badge && (

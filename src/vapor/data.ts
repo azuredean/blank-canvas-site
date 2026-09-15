@@ -1086,11 +1086,70 @@ export const EU_COUNTRIES = [
   "Lithuania",
   "Latvia",
   "Bulgaria",
+  "Malta",
+  "Cyprus",
 ];
 
 export const FEATURED_ID = "vozol-neon-60k";
 
+export const CONTACT = {
+  company: "VAPOR Labs GmbH",
+  city: "Berlin, Germany",
+  address: "Friedrichstraße 123, 10117 Berlin",
+  info: "info@vaporlabs.eu",
+  trade: "trade@vaporlabs.eu",
+};
+
+export const BESTSELLER_IDS = [
+  "elfbar-bc45000",
+  "vozol-neon-60k",
+  "jnr-shisha-hookah-70k",
+  "vozol-rave-40k",
+] as const;
+
+export const BANNER_ID = "jnr-hexafuse-120k";
+
+/** Short, indicative notes for trade — not legal advice. */
+export const EU_POLICIES: { region: string; note: string }[] = [
+  {
+    region: "All EU / EEA",
+    note: "TPD 2014/40/EU: 20 mg/ml nicotine cap, 10 ml refill bottles, 2 ml tanks. Child-resistant, tamper-evident packs and 30% health warning. EU-CEG notification before placing on the market. Purchase age 18+ (21+ where a member state requires it).",
+  },
+  { region: "AT · Austria", note: "18+. Standard TPD limits. EU-CEG required. Licensed adult trade only." },
+  { region: "BE · Belgium", note: "18+. Cross-border distance sale of e-cigarettes is prohibited. Quotes to Belgium may be declined." },
+  { region: "BG · Bulgaria", note: "18+. EU-CEG notification. Standard TPD nicotine, tank and bottle limits." },
+  { region: "HR · Croatia", note: "18+. EU-CEG. Standard TPD limits. National health-warning language on consumer packs." },
+  { region: "CY · Cyprus", note: "18+. EU-CEG. Standard TPD limits for consumer nicotine products." },
+  { region: "CZ · Czechia", note: "18+. Excise on e-liquids. EU-CEG required before placing on the market." },
+  { region: "DK · Denmark", note: "18+. Flavour ban (tobacco flavour only). Distance sale of e-cigarettes is prohibited." },
+  { region: "EE · Estonia", note: "18+. Flavour restrictions in force. EU-CEG notification required." },
+  { region: "FI · Finland", note: "18+. Flavour restrictions. Cross-border distance sale of e-cigarettes is prohibited." },
+  { region: "FR · France", note: "18+. Advertising ban. Nicotine tax. EU-CEG. Consumer packs in French." },
+  { region: "DE · Germany", note: "18+. Tobacco tax on e-liquids (TabStG). Hardware CE-marked where supplied for the Union. EU-CEG." },
+  { region: "GR · Greece", note: "18+. EU-CEG. Standard TPD limits. National language warnings on consumer packs." },
+  { region: "HU · Hungary", note: "18+. Flavour restrictions. EU-CEG required. Confirm local rules before you enquire." },
+  { region: "IE · Ireland", note: "18+. EU-CEG. Standard TPD limits. Advertising and display restrictions apply." },
+  { region: "IT · Italy", note: "18+. National register plus EU-CEG. Excise on liquids. Italian health warnings." },
+  { region: "LV · Latvia", note: "18+. Flavour restrictions. EU-CEG notification required." },
+  { region: "LT · Lithuania", note: "18+. Flavour ban in force. EU-CEG. Distance sales only where still permitted." },
+  { region: "LU · Luxembourg", note: "18+. EU-CEG. Standard TPD nicotine, tank and bottle limits." },
+  { region: "MT · Malta", note: "18+. EU-CEG. Standard TPD limits for consumer nicotine products." },
+  { region: "NL · Netherlands", note: "18+. Flavour ban (tobacco flavour only for consumer e-cigarettes). EU-CEG." },
+  { region: "PL · Poland", note: "18+. Excise on liquids. EU-CEG required before placing on the market." },
+  { region: "PT · Portugal", note: "18+. EU-CEG. Standard TPD limits. National language warnings." },
+  { region: "RO · Romania", note: "18+. EU-CEG. Standard TPD limits. Confirm flavour and tax rules on enquiry." },
+  { region: "SK · Slovakia", note: "18+. EU-CEG. Standard TPD nicotine, tank and bottle limits." },
+  { region: "SI · Slovenia", note: "18+. EU-CEG. Standard TPD limits for consumer nicotine products." },
+  { region: "ES · Spain", note: "18+. EU-CEG. Advertising restrictions. Regional rules may add display limits." },
+  { region: "SE · Sweden", note: "18+. Nicotine tax. EU-CEG. Standard TPD tank and bottle limits." },
+  { region: "NO · IS · LI (EEA)", note: "TPD-aligned nicotine and tank limits. Age 18+. Confirm national notification and tax before dispatch." },
+];
+
 export const getProduct = (id: string) => PRODUCTS.find((p) => p.id === id);
 export const GRID_PRODUCTS = PRODUCTS;
+export const BESTSELLERS = BESTSELLER_IDS.map((id) => getProduct(id)).filter(Boolean) as Product[];
+export const NEW_ARRIVALS = PRODUCTS.filter(
+  (p) => p.badge === "NEW" && !(BESTSELLER_IDS as readonly string[]).includes(p.id),
+);
 export const stockLabel = (s: Stock) =>
   s === "in" ? "In stock" : s === "limited" ? "Limited stock" : "Out of stock";

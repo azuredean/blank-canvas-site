@@ -17,7 +17,7 @@ export default function WishlistPage({ products, onOpen, onAdd, onToggleWish, on
     <>
       <SubHeader title={`Wishlist · ${products.length}`} onBack={onBack} />
 
-      <main className="mx-auto max-w-[1400px] px-4 pb-44 pt-5 md:px-8 md:pb-28 md:pt-8">
+      <main className="mx-auto max-w-[1400px] px-4 pb-8 pt-5 md:px-8 md:pt-8">
         {products.length === 0 ? (
           <div className="animate-rise mx-auto flex max-w-md flex-col items-center rounded-[28px] bg-card px-6 py-16 text-center">
             <span className="grid size-16 place-items-center rounded-full bg-paper text-mute">

@@ -39,7 +39,7 @@ export default function CartPage({ rows, onQty, onRemove, onClear, onCheckout, o
         }
       />
 
-      <main className="mx-auto max-w-[760px] px-4 pb-44 pt-5 md:pb-28 md:pt-8">
+      <main className="mx-auto max-w-[760px] px-4 pb-8 pt-5 md:pt-8">
         {rows.length === 0 ? (
           <div className="animate-rise flex flex-col items-center rounded-[28px] bg-card px-6 py-16 text-center">
             <span className="grid size-16 place-items-center rounded-full bg-paper text-mute">
