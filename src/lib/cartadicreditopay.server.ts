@@ -60,13 +60,73 @@ function fromBase64(value: string): Uint8Array {
   return out;
 }
 
-function parsePem(pem: string): ArrayBuffer {
-  const body = pem
+function derLength(len: number): number[] {
+  if (len < 0x80) return [len];
+  const bytes: number[] = [];
+  let n = len;
+  while (n > 0) {
+    bytes.unshift(n & 0xff);
+    n >>= 8;
+  }
+  return [0x80 | bytes.length, ...bytes];
+}
+
+function derSequence(...parts: number[][]): number[] {
+  const body = parts.flat();
+  return [0x30, ...derLength(body.length), ...body];
+}
+
+const RSA_ALG_ID = [
+  0x30, 0x0d, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01, 0x01, 0x05, 0x00,
+];
+
+/** PKCS#1 RSAPrivateKey -> PKCS#8 PrivateKeyInfo */
+function pkcs1ToPkcs8(pkcs1: Uint8Array): Uint8Array {
+  const der = derSequence(
+    [0x02, 0x01, 0x00],
+    RSA_ALG_ID,
+    [0x04, ...derLength(pkcs1.length), ...pkcs1],
+  );
+  return new Uint8Array(der);
+}
+
+/** PKCS#1 RSAPublicKey -> SubjectPublicKeyInfo */
+function pkcs1ToSpki(pkcs1: Uint8Array): Uint8Array {
+  const der = derSequence(RSA_ALG_ID, [0x03, ...derLength(pkcs1.length + 1), 0x00, ...pkcs1]);
+  return new Uint8Array(der);
+}
+
+/**
+ * Accepts PEM (PKCS#8/PKCS#1/SPKI), literal "\n" escapes, or bare base64 DER
+ * and returns DER in the format WebCrypto expects for the given usage.
+ */
+function parsePem(pem: string, kind: "private" | "public"): ArrayBuffer {
+  const text = pem.replace(/\\n/g, "\n").trim();
+  const label = /-----BEGIN ([^-]+)-----/.exec(text)?.[1]?.trim() ?? "";
+  const body = text
     .replace(/-----BEGIN [^-]+-----/g, "")
     .replace(/-----END [^-]+-----/g, "")
     .replace(/\s/g, "");
-  return fromBase64(body).buffer as ArrayBuffer;
+  if (body.length < 100) {
+    throw new Error(
+      `Configured RSA ${kind} key looks invalid (too short). Save the full PEM key value.`,
+    );
+  }
+  let der: Uint8Array;
+  try {
+    der = fromBase64(body);
+  } catch {
+    throw new Error(`Configured RSA ${kind} key is not valid base64/PEM.`);
+  }
+  if (kind === "private") {
+    // PKCS#1 keys start with SEQUENCE { INTEGER 0 (version) , INTEGER modulus... }
+    const isPkcs1 = label === "RSA PRIVATE KEY" || (!label && der[4] === 0x00 && der[3] === 0x01);
+    return (isPkcs1 ? pkcs1ToPkcs8(der) : der).buffer as ArrayBuffer;
+  }
+  const isPkcs1Pub = label === "RSA PUBLIC KEY" || der[4] === 0x02;
+  return (isPkcs1Pub ? pkcs1ToSpki(der) : der).buffer as ArrayBuffer;
 }
+
 
 export async function signWithRSA(data: string, privateKeyPem: string): Promise<string> {
   const key = await crypto.subtle.importKey(
