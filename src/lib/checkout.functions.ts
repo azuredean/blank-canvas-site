@@ -69,12 +69,16 @@ export const createOrder = createServerFn({ method: "POST" })
 
 /** Fetches a 24h iframe token for the hosted card element. */
 export const getIframeToken = createServerFn({ method: "POST" }).handler(async () => {
-  const { getPaymentConfig, signWithRSA, gatewayHeaders } = await import("./cartadicreditopay.server");
+  const { getPaymentConfig, signWithRSA, gatewayHeaders, verifyRSASignature } = await import("./cartadicreditopay.server");
   const cfg = getPaymentConfig();
   const timestamp = Date.now().toString();
   const signString = `merchant_id=${cfg.merchantId}&site_domain=${cfg.siteDomain}&timestamp=${timestamp}`;
   const signature = await signWithRSA(signString, cfg.privateKey);
-  console.log("cdc token signString", signString, "env", cfg.env, "base", cfg.apiBase);
+  console.log(
+    "cdc token signString", signString, "env", cfg.env,
+    "keypairMatch", await verifyRSASignature(signString, signature, cfg.publicKey),
+    "privLen", cfg.privateKey.length, "pubLen", cfg.publicKey.length,
+  );
 
   const res = await fetch(`${cfg.apiBase}/v3/merchants/token`, {
     method: "GET",
