@@ -36,13 +36,46 @@ export default function Hero({ onOpen }: Props) {
     setActive((current) => (current + direction + slides.length) % slides.length);
   };
 
+  const titleShadow: React.CSSProperties = {
+    textShadow: "0 2px 10px rgba(0,0,0,0.75), 0 1px 3px rgba(0,0,0,0.9)",
+  };
+
   return (
     <section
       aria-roledescription="carousel"
       aria-label="Featured products"
       className="relative h-[286px] overflow-hidden rounded-[24px] bg-ink text-card shadow-[0_28px_60px_-36px_rgba(22,22,15,0.55)] md:h-[440px] md:rounded-[36px]"
     >
-      <div className="grid h-full grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] md:grid-cols-2">
+      {/* Mobile: image fills the background, name only */}
+      <div className="absolute inset-0 md:hidden">
+        <button
+          type="button"
+          onClick={() => onOpen(product.id)}
+          aria-label={`View ${product.name}`}
+          className="group absolute inset-0"
+        >
+          {product.image ? (
+            <img
+              src={product.image}
+              alt=""
+              className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+            />
+          ) : (
+            <ProductVisual product={product} className="h-full w-full" imgClassName="h-full w-full object-cover" />
+          )}
+        </button>
+        <div className="absolute left-5 right-16 top-5 z-10">
+          <p
+            className="line-clamp-2 font-display text-[19px] font-extrabold leading-tight text-card"
+            style={titleShadow}
+          >
+            {product.name}
+          </p>
+        </div>
+      </div>
+
+      {/* Desktop: side-by-side layout with description */}
+      <div className="hidden h-full grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] md:grid">
         <div className="relative z-10 flex min-w-0 flex-col justify-center px-5 pb-14 pt-5 md:px-14 md:pb-20 md:pt-12">
           <p className="line-clamp-2 font-display text-[19px] font-extrabold leading-tight md:text-[50px] md:leading-[1.04]">
             {product.name}
