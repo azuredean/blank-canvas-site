@@ -54,17 +54,6 @@ const EMPTY: Form = {
   phone: "",
 };
 
-const SDK_URLS = {
-  production: {
-    sdk: "https://widget.cartadicreditopay.com/iframe.js",
-    shield: "https://js.cartadicreditopay.com/js/shield/v3",
-  },
-  sandbox: {
-    sdk: "https://stg-gateway.wintopay.com/icashier/iframe.js",
-    shield: "https://stage-js.wintopay.com/js/shield/v3",
-  },
-};
-
 function loadScript(src: string, id: string): Promise<void> {
   return new Promise((resolve, reject) => {
     const existing = document.getElementById(id) as HTMLScriptElement | null;
