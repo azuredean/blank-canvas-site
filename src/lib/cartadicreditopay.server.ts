@@ -1,6 +1,6 @@
 /** Wintopay / CartaDiCreditoPay gateway helpers (server only). */
 
-export interface WintopayConfig {
+export interface PaymentGatewayConfig {
   merchantId: string;
   privateKey: string;
   publicKey: string;
@@ -10,7 +10,7 @@ export interface WintopayConfig {
   frontendUrl: string;
 }
 
-export function getWintopayConfig(): WintopayConfig {
+export function getPaymentConfig(): PaymentGatewayConfig {
   const merchantId = process.env["WINTOPAY_MERCHANT_ID"]?.trim();
   const privateKey = process.env["WINTOPAY_RSA_PRIVATE_KEY"]?.trim();
   const publicKey = process.env["WINTOPAY_PUBLIC_KEY"]?.trim() ?? "";
@@ -130,8 +130,8 @@ export function buildCallbackSignString(payload: Record<string, unknown>): strin
   return buildSignString(clone);
 }
 
-export function wintopayHeaders(
-  cfg: WintopayConfig,
+export function gatewayHeaders(
+  cfg: PaymentGatewayConfig,
   timestamp: string,
   signature: string,
 ): Record<string, string> {

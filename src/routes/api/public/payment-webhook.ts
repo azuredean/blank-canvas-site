@@ -8,9 +8,9 @@ export const Route = createFileRoute("/api/public/payment-webhook")({
     handlers: {
       POST: async ({ request }) => {
         try {
-          const { getWintopayConfig, verifyRSASignature, buildCallbackSignString, mapGatewayStatus } =
-            await import("@/lib/wintopay.server");
-          const cfg = getWintopayConfig();
+          const { getPaymentConfig, verifyRSASignature, buildCallbackSignString, mapGatewayStatus } =
+            await import("@/lib/cartadicreditopay.server");
+          const cfg = getPaymentConfig();
 
           const body = (await request.json()) as Record<string, unknown>;
           const signature = (body["sign_verify"] ?? body["sign"]) as string | undefined;
@@ -20,7 +20,7 @@ export const Route = createFileRoute("/api/public/payment-webhook")({
             (await verifyRSASignature(buildCallbackSignString(body), signature, cfg.publicKey));
 
           if (!verified) {
-            console.error("wintopay webhook signature invalid — refusing to update order");
+            console.error("cartadicreditopay webhook signature invalid — refusing to update order");
             return OK();
           }
 
@@ -57,7 +57,7 @@ export const Route = createFileRoute("/api/public/payment-webhook")({
 
           return OK();
         } catch (err) {
-          console.error("wintopay webhook error", err);
+          console.error("cartadicreditopay webhook error", err);
           return OK();
         }
       },
