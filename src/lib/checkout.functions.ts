@@ -65,8 +65,8 @@ export const createOrder = createServerFn({ method: "POST" })
 
 /** Fetches a 24h iframe token for the hosted card element. */
 export const getIframeToken = createServerFn({ method: "POST" }).handler(async () => {
-  const { getWintopayConfig, signWithRSA, wintopayHeaders } = await import("./wintopay.server");
-  const cfg = getWintopayConfig();
+  const { getPaymentConfig, signWithRSA, gatewayHeaders } = await import("./cartadicreditopay.server");
+  const cfg = getPaymentConfig();
   const timestamp = Date.now().toString();
   const signature = await signWithRSA(
     `merchant_id=${cfg.merchantId}&site_domain=${cfg.siteDomain}&timestamp=${timestamp}`,
@@ -75,7 +75,7 @@ export const getIframeToken = createServerFn({ method: "POST" }).handler(async (
 
   const res = await fetch(`${cfg.apiBase}/v3/merchants/token`, {
     method: "GET",
-    headers: wintopayHeaders(cfg, timestamp, signature),
+    headers: gatewayHeaders(cfg, timestamp, signature),
   });
   const result = (await res.json()) as {
     success?: boolean;
@@ -85,9 +85,14 @@ export const getIframeToken = createServerFn({ method: "POST" }).handler(async (
   };
 
   if (result.success && result.code === "0000" && result.data?.token) {
-    return { success: true as const, token: result.data.token, env: cfg.env };
+    return {
+      success: true as const,
+      token: result.data.token,
+      sdkUrl: cfg.sdkUrl,
+      shieldUrl: cfg.shieldUrl,
+    };
   }
-  console.error("wintopay token failed", result.code, result.message);
+  console.error("cartadicreditopay token failed", result.code, result.message);
   return { success: false as const, error: "Payment form unavailable, please retry." };
 });
 
@@ -103,10 +108,10 @@ const processSchema = z.object({
 export const processPayment = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => processSchema.parse(data))
   .handler(async ({ data }) => {
-    const { getWintopayConfig, signWithRSA, buildSignString, wintopayHeaders, mapGatewayStatus } =
-      await import("./wintopay.server");
+    const { getPaymentConfig, signWithRSA, buildSignString, gatewayHeaders, mapGatewayStatus } =
+      await import("./cartadicreditopay.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const cfg = getWintopayConfig();
+    const cfg = getPaymentConfig();
 
     const { data: order, error } = await supabaseAdmin
       .from("orders")
@@ -169,14 +174,14 @@ export const processPayment = createServerFn({ method: "POST" })
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        ...wintopayHeaders(cfg, timestamp, signature),
+        ...gatewayHeaders(cfg, timestamp, signature),
       },
       body: signData,
     });
     const raw = (await res.json()) as Record<string, unknown>;
     const success = raw["success"] === true && raw["code"] === "0000";
     if (!success) {
-      console.error("wintopay payment failed", raw["code"], raw["message"]);
+      console.error("cartadicreditopay payment failed", raw["code"], raw["message"]);
       return {
         success: false as const,
         error: typeof raw["message"] === "string" ? raw["message"] : "Payment declined",

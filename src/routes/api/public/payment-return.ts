@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 async function handle(request: Request): Promise<Response> {
-  const { getWintopayConfig, verifyRSASignature, buildCallbackSignString, mapGatewayStatus } =
-    await import("@/lib/wintopay.server");
-  const cfg = getWintopayConfig();
+  const { getPaymentConfig, verifyRSASignature, buildCallbackSignString, mapGatewayStatus } =
+    await import("@/lib/cartadicreditopay.server");
+  const cfg = getPaymentConfig();
 
   const url = new URL(request.url);
   let payload: Record<string, unknown> = {};
@@ -52,7 +52,7 @@ async function handle(request: Request): Promise<Response> {
   if (order.status === "cancelled") return redirect("failed", order.lookup_token);
 
   if (!verified) {
-    console.error("wintopay return signature invalid — leaving order pending");
+    console.error("cartadicreditopay return signature invalid — leaving order pending");
     return redirect("pending", order.lookup_token);
   }
 
