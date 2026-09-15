@@ -269,7 +269,7 @@ export default function App() {
         <>
           <TopBar onMenu={() => setMenuOpen(true)} onSearch={() => setSearchOpen(true)} />
           <main className="mx-auto max-w-[1400px] px-4 pb-8 pt-5 md:px-8 md:pt-9">
-            <Hero onBuy={() => navigate({ name: "product", id: FEATURED_ID })} />
+            <Hero onOpen={(id) => navigate({ name: "product", id })} />
 
             <section className="mt-10 md:mt-14">
               <SectionTitle
