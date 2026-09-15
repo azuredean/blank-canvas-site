@@ -27,7 +27,11 @@ export const createOrder = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => createOrderSchema.parse(data))
   .handler(async ({ data }) => {
     const { PRODUCT_PRICES, SHIPPING_COST, CURRENCY } = await import("./prices.server");
+    const { toCountryCode } = await import("./countries");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const countryCode = toCountryCode(data.customer.country);
+    if (!countryCode) throw new Error("Unsupported delivery country");
 
     let subtotal = 0;
     const items = data.items.map((item) => {
