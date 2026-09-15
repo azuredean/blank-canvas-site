@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Check, Plus, Search, X } from "lucide-react";
-import Logo from "./Logo";
+import Wordmark from "./Wordmark";
 import ProductVisual from "./ProductVisual";
 import { CATEGORIES, CONTACT, GRID_PRODUCTS, type Filter, type Product } from "../data";
 
@@ -38,10 +38,7 @@ export function MenuDrawer({ open, onClose, onNavigate, onPickCategory }: Drawer
         }
       >
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <Logo className="h-9 w-9" />
-            <span className="font-display text-lg font-extrabold tracking-tight">Vapofolio</span>
-          </div>
+          <Wordmark className="text-[20px]" />
           <button
             onClick={onClose}
             aria-label="Close menu"

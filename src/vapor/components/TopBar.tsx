@@ -1,5 +1,5 @@
 import { Menu, Search } from "lucide-react";
-import Logo from "./Logo";
+import Wordmark from "./Wordmark";
 
 interface Props {
   onMenu: () => void;
@@ -19,7 +19,7 @@ export default function TopBar({ onMenu, onSearch }: Props) {
         </button>
 
         <div className="absolute left-1/2 -translate-x-1/2">
-          <Logo className="h-10 w-10" />
+          <Wordmark className="text-[20px] md:text-[23px]" />
         </div>
 
         <button
