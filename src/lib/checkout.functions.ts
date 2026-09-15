@@ -72,10 +72,9 @@ export const getIframeToken = createServerFn({ method: "POST" }).handler(async (
   const { getPaymentConfig, signWithRSA, gatewayHeaders } = await import("./cartadicreditopay.server");
   const cfg = getPaymentConfig();
   const timestamp = Date.now().toString();
-  const signature = await signWithRSA(
-    `merchant_id=${cfg.merchantId}&site_domain=${cfg.siteDomain}&timestamp=${timestamp}`,
-    cfg.privateKey,
-  );
+  const signString = `merchant_id=${cfg.merchantId}&site_domain=${cfg.siteDomain}&timestamp=${timestamp}`;
+  const signature = await signWithRSA(signString, cfg.privateKey);
+  console.log("cdc token signString", signString, "env", cfg.env, "base", cfg.apiBase);
 
   const res = await fetch(`${cfg.apiBase}/v3/merchants/token`, {
     method: "GET",
