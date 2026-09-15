@@ -1,0 +1,160 @@
+/** Wintopay / CartaDiCreditoPay gateway helpers (server only). */
+
+export interface WintopayConfig {
+  merchantId: string;
+  privateKey: string;
+  publicKey: string;
+  env: "sandbox" | "production";
+  siteDomain: string;
+  apiBase: string;
+  frontendUrl: string;
+}
+
+export function getWintopayConfig(): WintopayConfig {
+  const merchantId = process.env["WINTOPAY_MERCHANT_ID"]?.trim();
+  const privateKey = process.env["WINTOPAY_RSA_PRIVATE_KEY"]?.trim();
+  const publicKey = process.env["WINTOPAY_PUBLIC_KEY"]?.trim() ?? "";
+  const env = (process.env["WINTOPAY_ENV"]?.trim() || "sandbox") as "sandbox" | "production";
+  const siteDomain = process.env["WINTOPAY_SITE_DOMAIN"]?.trim() || "vapofolio.com";
+  const frontendUrl = process.env["FRONTEND_URL"]?.trim();
+
+  if (!merchantId) throw new Error("WINTOPAY_MERCHANT_ID is not configured");
+  if (!privateKey) throw new Error("WINTOPAY_RSA_PRIVATE_KEY is not configured");
+  if (!frontendUrl) throw new Error("FRONTEND_URL is not configured");
+
+  return {
+    merchantId,
+    privateKey,
+    publicKey,
+    env,
+    siteDomain,
+    frontendUrl: frontendUrl.replace(/\/+$/, ""),
+    apiBase:
+      env === "production"
+        ? "https://api.cartadicreditopay.com"
+        : "https://stg-gateway.wintopay.com",
+  };
+}
+
+function base64(bytes: Uint8Array): string {
+  let bin = "";
+  for (const b of bytes) bin += String.fromCharCode(b);
+  return btoa(bin);
+}
+
+function fromBase64(value: string): Uint8Array {
+  const bin = atob(value);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+
+function parsePem(pem: string): ArrayBuffer {
+  const body = pem
+    .replace(/-----BEGIN [^-]+-----/g, "")
+    .replace(/-----END [^-]+-----/g, "")
+    .replace(/\s/g, "");
+  return fromBase64(body).buffer as ArrayBuffer;
+}
+
+export async function signWithRSA(data: string, privateKeyPem: string): Promise<string> {
+  const key = await crypto.subtle.importKey(
+    "pkcs8",
+    parsePem(privateKeyPem),
+    { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const sig = await crypto.subtle.sign("RSASSA-PKCS1-v1_5", key, new TextEncoder().encode(data));
+  return base64(new Uint8Array(sig));
+}
+
+export async function verifyRSASignature(
+  data: string,
+  signature: string,
+  publicKeyPem: string,
+): Promise<boolean> {
+  try {
+    const key = await crypto.subtle.importKey(
+      "spki",
+      parsePem(publicKeyPem),
+      { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
+      false,
+      ["verify"],
+    );
+    return await crypto.subtle.verify(
+      "RSASSA-PKCS1-v1_5",
+      key,
+      fromBase64(signature).buffer as ArrayBuffer,
+      new TextEncoder().encode(data),
+    );
+  } catch {
+    return false;
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function sortAndClean(obj: any): any {
+  if (obj === null || obj === undefined || obj === "") return undefined;
+  if (Array.isArray(obj)) return obj.map(sortAndClean).filter((v) => v !== undefined);
+  if (typeof obj === "object") {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const out: Record<string, any> = {};
+    for (const k of Object.keys(obj).sort()) {
+      const v = sortAndClean(obj[k]);
+      if (v !== undefined) out[k] = v;
+    }
+    return out;
+  }
+  return obj;
+}
+
+/** The exact string to sign AND to send as the request body. */
+export function buildSignString(body: Record<string, unknown>): string {
+  return JSON.stringify(sortAndClean(body));
+}
+
+const NUMERIC_CALLBACK_FIELDS = ["amount_value", "amount", "created", "timestamp"];
+
+/** Builds the verification string for an inbound callback payload. */
+export function buildCallbackSignString(payload: Record<string, unknown>): string {
+  const clone: Record<string, unknown> = { ...payload };
+  delete clone["sign"];
+  delete clone["sign_verify"];
+  for (const field of NUMERIC_CALLBACK_FIELDS) {
+    const value = clone[field];
+    if (typeof value === "string" && value.trim() !== "" && !Number.isNaN(Number(value))) {
+      clone[field] = Number(value);
+    }
+  }
+  return buildSignString(clone);
+}
+
+export function wintopayHeaders(
+  cfg: WintopayConfig,
+  timestamp: string,
+  signature: string,
+): Record<string, string> {
+  return {
+    "X-MERCHANT-ID": cfg.merchantId,
+    "X-SITE-DOMAIN": cfg.siteDomain,
+    "X-TIMESTAMP": timestamp,
+    "X-ADDON-PLATFORM": "Lovable",
+    "X-ADDON-VERSION": "V1",
+    "X-SIGNATURE": signature,
+  };
+}
+
+export function mapGatewayStatus(status: string | undefined): "paid" | "cancelled" | "pending" {
+  switch ((status ?? "").toLowerCase()) {
+    case "paid":
+    case "success":
+      return "paid";
+    case "failed":
+    case "canceled":
+    case "cancelled":
+      return "cancelled";
+    default:
+      return "pending";
+  }
+}
