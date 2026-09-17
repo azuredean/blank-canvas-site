@@ -116,18 +116,6 @@ export default function CheckoutPage({ rows, onBack, onPlaceOrder, onViewOrders,
     (row) => row.qty < minimumOrderQtyForBrand(row.product.brand),
   );
 
-  const mailtoHref = `mailto:${CONTACT.info}?subject=${encodeURIComponent(
-    `Order enquiry — ${count} units`,
-  )}&body=${encodeURIComponent(
-    rows.map((r) => `${r.qty}× ${r.product.name} — ${r.option}`).join("\n") +
-      `\n\nSubtotal: ${formatEur(subtotal)}` +
-      `\nShipping: ${shipping === null ? "to be confirmed" : shipping === 0 ? "Free" : formatEur(shipping)}` +
-      `\nTotal: ${formatEur(total)}` +
-      (form.name.trim() ? `\n\nName: ${form.name.trim()}` : "") +
-      (form.email.trim() ? `\nEmail: ${form.email.trim()}` : "") +
-      (form.country ? `\nCountry: ${form.country}` : ""),
-  )}`;
-
   useEffect(() => {
     if (PAYMENT_PAUSED) return;
     if (mountedOnce.current || rows.length === 0) return;
@@ -412,10 +400,10 @@ export default function CheckoutPage({ rows, onBack, onPlaceOrder, onViewOrders,
                   <CreditCard className="size-5" strokeWidth={2.2} /> Payment
                 </h3>
                 <div className="mt-4 rounded-2xl bg-paper p-5 text-center">
-                  <p className="text-[15px] font-extrabold">Online payment is temporarily paused</p>
+                  <p className="text-[15px] font-extrabold">Ordering is currently unavailable</p>
                   <p className="mt-1.5 text-[13px] font-medium leading-relaxed text-mute">
-                    You can still build your order here. Send it to us by email and we'll confirm
-                    stock, shipping and payment within 24 h (Mon–Fri).
+                    Prices are being finalised, so orders can't be placed or paid online right now.
+                    For a wholesale quote, email {CONTACT.info} with your list.
                   </p>
                 </div>
                 <div className="mt-4 rounded-2xl border border-line p-4 text-[12px] font-semibold leading-relaxed text-mute">
