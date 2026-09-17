@@ -1,6 +1,7 @@
 import { ArrowRight, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import SubHeader from "../components/SubHeader";
 import ProductVisual from "../components/ProductVisual";
+import { FREE_SHIPPING_MIN_QTY, MIN_QTY_PER_BRAND } from "@/lib/shipping";
 import type { Product } from "../data";
 
 export interface CartRow {
@@ -21,6 +22,12 @@ interface Props {
 
 export default function CartPage({ rows, onQty, onRemove, onClear, onCheckout, onBrowse, onBack }: Props) {
   const count = rows.reduce((s, r) => s + r.qty, 0);
+
+  const brandTotals = new Map<string, number>();
+  for (const r of rows) {
+    brandTotals.set(r.product.brand, (brandTotals.get(r.product.brand) ?? 0) + r.qty);
+  }
+  const shortBrands = [...brandTotals.entries()].filter(([, q]) => q < MIN_QTY_PER_BRAND);
 
   return (
     <>
@@ -65,6 +72,10 @@ export default function CartPage({ rows, onQty, onRemove, onClear, onCheckout, o
                 </span>{" "}
                 across {rows.length} {rows.length === 1 ? "line" : "lines"} — we'll
                 reply with a landed wholesale quote.
+              </p>
+              <p className="mt-1.5 text-[12px] font-semibold text-mute">
+                Minimum {MIN_QTY_PER_BRAND} units per brand · free shipping from{" "}
+                {FREE_SHIPPING_MIN_QTY} units
               </p>
             </div>
 
@@ -122,9 +133,16 @@ export default function CartPage({ rows, onQty, onRemove, onClear, onCheckout, o
                 <span className="font-display text-lg font-extrabold">Units</span>
                 <span className="font-display text-lg font-extrabold">{count}</span>
               </div>
+              {shortBrands.length > 0 && (
+                <p className="mt-4 rounded-xl bg-paper px-3 py-2.5 text-[12px] font-bold leading-relaxed text-ember">
+                  Minimum {MIN_QTY_PER_BRAND} units per brand — please add more:{" "}
+                  {shortBrands.map(([b, q]) => `${b} (${q}/${MIN_QTY_PER_BRAND})`).join(", ")}
+                </p>
+              )}
               <button
                 onClick={onCheckout}
-                className="grad-cta mt-5 flex w-full items-center justify-center gap-2 rounded-full px-7 py-4 text-[15px] font-bold text-white shadow-[0_16px_32px_-14px_rgba(138,178,226,0.8)] transition hover:brightness-105 active:scale-[0.98]"
+                disabled={shortBrands.length > 0}
+                className="grad-cta mt-5 flex w-full items-center justify-center gap-2 rounded-full px-7 py-4 text-[15px] font-bold text-white shadow-[0_16px_32px_-14px_rgba(138,178,226,0.8)] transition hover:brightness-105 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Request quote <ArrowRight className="size-4" strokeWidth={2.6} />
               </button>
