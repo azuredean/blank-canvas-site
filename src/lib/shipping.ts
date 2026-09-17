@@ -35,7 +35,6 @@ const DEFAULT_RATE: [number, number] = [20, 15];
 
 export const FREE_SHIPPING_MIN_QTY = 50;
 export const MID_TIER_MIN_QTY = 30;
-export const MIN_QTY_PER_BRAND = 10;
 
 /** Online card payment is paused — customers can build orders but not pay. */
 export const PAYMENT_PAUSED = true;

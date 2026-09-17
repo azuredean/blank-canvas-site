@@ -1,10 +1,14 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import {
+  MAXIMUM_PER_FLAVOR,
+  minimumOrderQtyForProductId,
+} from "./order-rules";
 
 const itemSchema = z.object({
   id: z.string().min(1).max(80),
   option: z.string().min(1).max(120),
-  qty: z.number().int().min(1).max(99),
+  qty: z.number().int().min(1).max(MAXIMUM_PER_FLAVOR),
 });
 
 const customerSchema = z.object({
@@ -37,6 +41,10 @@ export const createOrder = createServerFn({ method: "POST" })
     let subtotal = 0;
     let totalQty = 0;
     const items = data.items.map((item) => {
+      const minimum = minimumOrderQtyForProductId(item.id);
+      if (item.qty < minimum) {
+        throw new Error(`Minimum quantity is ${minimum} units per flavor for ${item.id}`);
+      }
       const unit = PRODUCT_PRICES[item.id];
       if (unit === undefined) throw new Error(`Unknown product: ${item.id}`);
       subtotal += unit * item.qty;

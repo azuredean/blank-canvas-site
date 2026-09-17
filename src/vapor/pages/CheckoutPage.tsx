@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Check, CreditCard, Loader2, ShieldCheck } from "lucide-react";
+import { Check, CreditCard, Loader2, ShieldCheck, TriangleAlert } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import SubHeader from "../components/SubHeader";
 import type { CartRow } from "./CartPage";
@@ -10,10 +10,10 @@ import { createOrder, getIframeToken, processPayment } from "@/lib/checkout.func
 import { formatEur, priceOf } from "@/lib/prices";
 import {
   FREE_SHIPPING_MIN_QTY,
-  MIN_QTY_PER_BRAND,
   PAYMENT_PAUSED,
   shippingFor,
 } from "@/lib/shipping";
+import { minimumOrderQtyForBrand } from "@/lib/order-rules";
 import { CONTACT } from "../data";
 
 declare global {
@@ -100,6 +100,7 @@ export default function CheckoutPage({ rows, onBack, onPlaceOrder, onViewOrders,
   const [iframeError, setIframeError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [payError, setPayError] = useState<string | null>(null);
+  const [deliveryConfirmed, setDeliveryConfirmed] = useState(false);
   const mountedOnce = useRef(false);
 
   const fetchToken = useServerFn(getIframeToken);
@@ -111,11 +112,9 @@ export default function CheckoutPage({ rows, onBack, onPlaceOrder, onViewOrders,
   const shipping = form.country ? shippingFor(form.country, count) : null;
   const total = subtotal + (shipping ?? 0);
 
-  const brandTotals = new Map<string, number>();
-  for (const r of rows) {
-    brandTotals.set(r.product.brand, (brandTotals.get(r.product.brand) ?? 0) + r.qty);
-  }
-  const shortBrands = [...brandTotals.entries()].filter(([, q]) => q < MIN_QTY_PER_BRAND);
+  const shortLines = rows.filter(
+    (row) => row.qty < minimumOrderQtyForBrand(row.product.brand),
+  );
 
   const mailtoHref = `mailto:${CONTACT.info}?subject=${encodeURIComponent(
     `Order enquiry — ${count} units`,
@@ -171,6 +170,19 @@ export default function CheckoutPage({ rows, onBack, onPlaceOrder, onViewOrders,
   };
 
   const submit = async () => {
+    if (shortLines.length > 0) {
+      const row = shortLines[0];
+      if (row) {
+        setPayError(
+          `${row.product.name} · ${row.option} requires at least ${minimumOrderQtyForBrand(row.product.brand)} units.`,
+        );
+      }
+      return;
+    }
+    if (!deliveryConfirmed) {
+      setPayError("Confirm that you have checked the recipient and delivery details.");
+      return;
+    }
     const er: Partial<Record<keyof Form, string>> = {};
     if (!/^\S+@\S+\.\S+$/.test(form.email)) er.email = "Valid email required";
     if (form.name.trim().length < 2) er.name = "Enter your full name";
@@ -363,6 +375,35 @@ export default function CheckoutPage({ rows, onBack, onPlaceOrder, onViewOrders,
 
               <label className="mt-4 block text-xs font-bold tracking-[0.14em] text-mute">PHONE (OPTIONAL)</label>
               <input className={field} value={form.phone} onChange={set("phone")} placeholder="+49 30 123456" />
+
+              <div className="mt-5 rounded-2xl border border-ember/30 bg-ember/10 p-4">
+                <p className="flex items-center gap-2 text-[13px] font-extrabold text-ink">
+                  <TriangleAlert className="size-4 shrink-0 text-ember" strokeWidth={2.4} />
+                  Check the delivery details carefully
+                </p>
+                <p className="mt-2 text-[12px] font-semibold leading-relaxed text-mute">
+                  Returned parcels are destroyed by the carrier or sent to a virtual return address
+                  with no physical warehouse to receive them. They cannot be intercepted, reshipped
+                  or returned.
+                </p>
+                <p className="mt-2 text-[12px] font-semibold leading-relaxed text-mute">
+                  Please verify the recipient name, address, postal code and phone number before
+                  ordering. Any resulting loss or charges are the customer's responsibility.
+                </p>
+                <label className="mt-3 flex cursor-pointer items-start gap-2.5 rounded-xl bg-card/75 p-3 text-[12px] font-bold leading-relaxed text-ink">
+                  <input
+                    type="checkbox"
+                    checked={deliveryConfirmed}
+                    onChange={(event) => {
+                      setDeliveryConfirmed(event.target.checked);
+                      setPayError(null);
+                    }}
+                    className="mt-0.5 size-4 shrink-0 accent-current"
+                  />
+                  I have checked the recipient details and understand that returned parcels cannot
+                  be recovered or reshipped.
+                </label>
+              </div>
             </div>
 
             {PAYMENT_PAUSED ? (
@@ -411,8 +452,9 @@ export default function CheckoutPage({ rows, onBack, onPlaceOrder, onViewOrders,
             <div className="mt-3 flex flex-col gap-2.5">
               {rows.map((r) => (
                 <div key={`${r.product.id}-${r.option}`} className="flex justify-between gap-3 text-[13px] font-semibold">
-                  <span className="min-w-0 truncate text-mute">
-                    {r.qty}× {r.product.name}
+                  <span className="min-w-0 text-mute">
+                    <span className="block truncate">{r.qty}× {r.product.name}</span>
+                    <span className="mt-0.5 block truncate text-[11px]">{r.option}</span>
                   </span>
                   <span className="shrink-0 text-ink">{formatEur(priceOf(r.product.id) * r.qty)}</span>
                 </div>
@@ -440,17 +482,22 @@ export default function CheckoutPage({ rows, onBack, onPlaceOrder, onViewOrders,
 
             {payError && !PAYMENT_PAUSED && <p className="mt-3 text-[13px] font-bold text-[#c2453f]">{payError}</p>}
 
-            {shortBrands.length > 0 && (
+            {shortLines.length > 0 && (
               <p className="mt-3 rounded-xl bg-paper px-3 py-2.5 text-[12px] font-bold leading-relaxed text-ember">
-                Minimum {MIN_QTY_PER_BRAND} units per brand — please add more:{" "}
-                {shortBrands.map(([b, q]) => `${b} (${q}/${MIN_QTY_PER_BRAND})`).join(", ")}
+                Each flavor must meet its minimum — please add more:{" "}
+                {shortLines
+                  .map(
+                    (row) =>
+                      `${row.product.name} · ${row.option} (${row.qty}/${minimumOrderQtyForBrand(row.product.brand)})`,
+                  )
+                  .join(", ")}
               </p>
             )}
 
             {PAYMENT_PAUSED ? (
-              shortBrands.length > 0 ? (
+              shortLines.length > 0 || !deliveryConfirmed ? (
                 <span className="grad-cta mt-5 flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-full px-7 py-4 text-[15px] font-bold text-white opacity-50">
-                  Send order by email
+                  {shortLines.length > 0 ? "Meet flavor minimums" : "Confirm delivery details"}
                 </span>
               ) : (
                 <a
@@ -463,11 +510,15 @@ export default function CheckoutPage({ rows, onBack, onPlaceOrder, onViewOrders,
             ) : (
             <button
               onClick={submit}
-              disabled={submitting || shortBrands.length > 0}
+              disabled={submitting || shortLines.length > 0 || !deliveryConfirmed}
               className="grad-cta mt-5 flex w-full items-center justify-center gap-2 rounded-full px-7 py-4 text-[15px] font-bold text-white shadow-[0_16px_32px_-14px_rgba(138,178,226,0.8)] transition hover:brightness-105 active:scale-[0.98] disabled:opacity-60"
             >
               {submitting && <Loader2 className="size-4 animate-spin" />}
-              {submitting ? "Processing…" : `Pay ${formatEur(total)}`}
+              {submitting
+                ? "Processing…"
+                : deliveryConfirmed
+                  ? `Pay ${formatEur(total)}`
+                  : "Confirm delivery details"}
             </button>
             )}
             <p className="mt-3 flex items-center justify-center gap-1.5 text-[11px] font-bold text-mute">

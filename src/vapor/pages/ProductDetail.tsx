@@ -4,6 +4,10 @@ import SubHeader from "../components/SubHeader";
 import ProductVisual from "../components/ProductVisual";
 import { firstAvailableOption, getOptionStock, getProduct, GRID_PRODUCTS, stockLabel } from "../data";
 import { cn } from "../utils/cn";
+import {
+  MAXIMUM_PER_FLAVOR,
+  minimumOrderQtyForBrand,
+} from "@/lib/order-rules";
 
 interface Props {
   id: string;
@@ -19,7 +23,8 @@ export default function ProductDetail({ id, onBack, onAdd, onOpen, wishlisted, o
   const [option, setOption] = useState(
     product ? (firstAvailableOption(product) ?? product.options[0] ?? "") : "",
   );
-  const [qty, setQty] = useState(1);
+  const minimumQty = product ? minimumOrderQtyForBrand(product.brand) : 10;
+  const [qty, setQty] = useState(minimumQty);
 
   if (!product) {
     return (
@@ -134,23 +139,25 @@ export default function ProductDetail({ id, onBack, onAdd, onOpen, wishlisted, o
             <div className="mt-6 flex items-center gap-4">
               <div className="flex items-center rounded-full border border-line bg-card">
                 <button
-                  onClick={() => setQty((q) => Math.max(1, q - 1))}
+                  onClick={() => setQty((q) => Math.max(minimumQty, q - 1))}
                   aria-label="Decrease quantity"
                   className="grid size-11 place-items-center rounded-full transition active:scale-90 disabled:opacity-30"
-                  disabled={qty <= 1}
+                  disabled={qty <= minimumQty}
                 >
                   <Minus className="size-4" strokeWidth={2.6} />
                 </button>
-                <span className="w-10 text-center font-display text-lg font-extrabold">{qty}</span>
+                <span className="w-14 text-center font-display text-lg font-extrabold">{qty}</span>
                 <button
-                  onClick={() => setQty((q) => Math.min(99, q + 1))}
+                  onClick={() => setQty((q) => Math.min(MAXIMUM_PER_FLAVOR, q + 1))}
                   aria-label="Increase quantity"
                   className="grid size-11 place-items-center rounded-full transition active:scale-90"
                 >
                   <Plus className="size-4" strokeWidth={2.6} />
                 </button>
               </div>
-              <span className="text-sm font-semibold text-mute">{qty} for quote</span>
+              <span className="text-sm font-semibold text-mute">
+                Minimum {minimumQty} units per flavor
+              </span>
             </div>
 
             <button

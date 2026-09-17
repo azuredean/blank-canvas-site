@@ -18,7 +18,7 @@ const FAQS = [
   },
   {
     q: "What is the minimum order?",
-    a: "Minimum 10 units per brand. You can mix flavors freely within a brand to reach the minimum.",
+    a: "The minimum applies to each individual flavor: 50 units for every ELFBAR flavor and 10 units per flavor for all other brands. Different flavors cannot be combined to meet one flavor's minimum.",
   },
   {
     q: "How much is shipping?",
@@ -37,8 +37,8 @@ const FAQS = [
     a: "The catalog includes 0%, 2%, 3% and 5% depending on the device, plus TPD-oriented 2% pod systems (JNR Areo X, FOX, Panda). Strengths actually shipped follow destination-market law.",
   },
   {
-    q: "Can I return a product?",
-    a: "Unopened trade cartons can be discussed within 14 days. Opened pods and e-liquids cannot be returned once unsealed, for hygiene reasons.",
+    q: "What happens if a parcel is returned?",
+    a: "Returned parcels are destroyed by the carrier or sent to a virtual return address with no physical warehouse to receive them. They cannot be intercepted, reshipped or returned. Please verify all recipient details before ordering. Any resulting loss or charges are the customer's responsibility.",
   },
 ];
 

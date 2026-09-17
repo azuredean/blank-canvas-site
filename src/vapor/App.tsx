@@ -16,6 +16,11 @@ import AccountPage from "./pages/AccountPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import SupportPage from "./pages/SupportPage";
 import {
+  MAXIMUM_PER_FLAVOR,
+  minimumOrderQtyForBrand,
+  normalizeOrderQty,
+} from "@/lib/order-rules";
+import {
   BESTSELLERS,
   CATEGORIES,
   GRID_PRODUCTS,
@@ -77,7 +82,12 @@ export default function App() {
 
   useEffect(() => {
     setAgeOk(load("vapor-age", false));
-    setCart(load("vapor-cart", []));
+    setCart(
+      load<CartItem[]>("vapor-cart", []).flatMap((item) => {
+        const product = getProduct(item.id);
+        return product ? [{ ...item, qty: normalizeOrderQty(product.brand, item.qty) }] : [];
+      }),
+    );
     setWishlist(load("vapor-wish", []));
     setOrders(load("vapor-orders", []));
     setUser(load("vapor-user", null));
@@ -145,15 +155,19 @@ export default function App() {
       showToast(`${option || p.name} is out of stock`);
       return;
     }
+    const orderQty = normalizeOrderQty(p.brand, qty);
     setCart((prev) => {
       const i = prev.findIndex((c) => c.id === id && c.option === option);
       const existing = prev[i];
       if (i >= 0 && existing) {
         const next = [...prev];
-        next[i] = { ...existing, qty: Math.min(99, existing.qty + qty) };
+        next[i] = {
+          ...existing,
+          qty: Math.min(MAXIMUM_PER_FLAVOR, existing.qty + orderQty),
+        };
         return next;
       }
-      return [...prev, { id, option, qty }];
+      return [...prev, { id, option, qty: orderQty }];
     });
     showToast(`${p.name} added to quote`);
   };
@@ -163,20 +177,21 @@ export default function App() {
       showToast(`${p.name} is out of stock`);
       return;
     }
-    addToCart(p.id, option, 1);
+    addToCart(p.id, option, minimumOrderQtyForBrand(p.brand));
   };
 
   const changeQty = (id: string, option: string, delta: number) => {
     setCart((prev) =>
-      prev
-        .map((c) => (c.id === id && c.option === option ? { ...c, qty: c.qty + delta } : c))
-        .filter((c) => {
-          if (c.qty < 1) {
-            showToast(`${getProduct(c.id)?.name ?? "Item"} removed`);
-            return false;
-          }
-          return true;
-        }),
+      prev.map((c) => {
+        if (c.id !== id || c.option !== option) return c;
+        const product = getProduct(c.id);
+        if (!product) return c;
+        const minimum = minimumOrderQtyForBrand(product.brand);
+        return {
+          ...c,
+          qty: Math.min(MAXIMUM_PER_FLAVOR, Math.max(minimum, c.qty + delta)),
+        };
+      }),
     );
   };
 
