@@ -495,18 +495,9 @@ export default function CheckoutPage({ rows, onBack, onPlaceOrder, onViewOrders,
             )}
 
             {PAYMENT_PAUSED ? (
-              shortLines.length > 0 || !deliveryConfirmed ? (
-                <span className="grad-cta mt-5 flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-full px-7 py-4 text-[15px] font-bold text-white opacity-50">
-                  {shortLines.length > 0 ? "Meet flavor minimums" : "Confirm delivery details"}
-                </span>
-              ) : (
-                <a
-                  href={mailtoHref}
-                  className="grad-cta mt-5 flex w-full items-center justify-center gap-2 rounded-full px-7 py-4 text-[15px] font-bold text-white shadow-[0_16px_32px_-14px_rgba(138,178,226,0.8)] transition hover:brightness-105 active:scale-[0.98]"
-                >
-                  Send order by email
-                </a>
-              )
+              <span className="grad-cta mt-5 flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-full px-7 py-4 text-[15px] font-bold text-white opacity-50">
+                Ordering unavailable
+              </span>
             ) : (
             <button
               onClick={submit}
