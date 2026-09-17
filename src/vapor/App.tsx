@@ -20,6 +20,8 @@ import {
   CATEGORIES,
   GRID_PRODUCTS,
   NEW_ARRIVALS,
+  firstAvailableOption,
+  getOptionStock,
   getProduct,
   type Filter,
   type Order,
@@ -139,8 +141,8 @@ export default function App() {
   const addToCart = (id: string, option: string, qty: number) => {
     const p = getProduct(id);
     if (!p) return;
-    if (p.stock === "out") {
-      showToast(`${p.name} is out of stock`);
+    if (p.stock === "out" || getOptionStock(p, option) === "out") {
+      showToast(`${option || p.name} is out of stock`);
       return;
     }
     setCart((prev) => {
@@ -155,7 +157,14 @@ export default function App() {
     });
     showToast(`${p.name} added to quote`);
   };
-  const addProduct = (p: Product) => addToCart(p.id, p.options[0] ?? "Default", 1);
+  const addProduct = (p: Product) => {
+    const option = firstAvailableOption(p);
+    if (!option) {
+      showToast(`${p.name} is out of stock`);
+      return;
+    }
+    addToCart(p.id, option, 1);
+  };
 
   const changeQty = (id: string, option: string, delta: number) => {
     setCart((prev) =>

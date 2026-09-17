@@ -1,5 +1,5 @@
 import { Heart, Plus } from "lucide-react";
-import type { Product } from "../data";
+import { getOptionStock, type Product } from "../data";
 import ProductVisual from "./ProductVisual";
 
 interface Props {
@@ -22,6 +22,9 @@ export default function ProductCard({
   rank,
 }: Props) {
   const out = product.stock === "out";
+  const availableOptions = product.options.filter(
+    (option) => getOptionStock(product, option) !== "out",
+  ).length;
   return (
     <article
       className="group animate-rise relative flex h-full cursor-pointer flex-col rounded-[24px] bg-card p-4 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_26px_48px_-30px_rgba(22,22,15,0.35)] md:rounded-[28px] md:p-5"
@@ -70,7 +73,11 @@ export default function ProductCard({
         <div className="min-w-0">
           <span className="font-display text-lg font-extrabold tracking-tight">{product.puffs ?? product.kind}</span>
           <p className="truncate text-[11px] font-semibold text-mute">
-            {product.options.length > 1 ? `${product.options.length} options` : product.kind}
+            {product.optionStock
+              ? `${availableOptions}/${product.options.length} flavors available`
+              : product.options.length > 1
+                ? `${product.options.length} options`
+                : product.kind}
           </p>
         </div>
         <button

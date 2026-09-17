@@ -1,5 +1,7 @@
-export type Brand = "ELFBAR" | "Lost Mary" | "Fumot" | "JNR" | "Vozol";
-export type Kind = "Disposable" | "E-Liquid" | "Pod System";
+import { BANG_PRODUCTS } from "./bang-data";
+
+export type Brand = "ELFBAR" | "Lost Mary" | "Fumot" | "JNR" | "Vozol" | "BANG";
+export type Kind = "Disposable" | "E-Liquid" | "Pod System" | "Electronic Atomizer";
 export type Stock = "in" | "limited" | "out";
 export type Badge = "NEW" | "LOW" | "OUT";
 
@@ -11,6 +13,7 @@ export interface Product {
   badge?: Badge;
   desc: string;
   options: string[];
+  optionStock?: Record<string, Stock>;
   optionLabel: "FLAVOR" | "NICOTINE";
   specs: [string, string][];
   stock: Stock;
@@ -18,7 +21,7 @@ export interface Product {
   puffs?: string;
 }
 
-export const CATEGORIES = ["All", "ELFBAR", "Lost Mary", "Fumot", "JNR", "Vozol"] as const;
+export const CATEGORIES = ["All", "ELFBAR", "Lost Mary", "Fumot", "JNR", "Vozol", "BANG"] as const;
 export type Filter = (typeof CATEGORIES)[number];
 
 const nic = ["0%", "2%", "3%", "5%"];
@@ -34,7 +37,7 @@ function unique(list: string[]) {
   });
 }
 
-export const PRODUCTS: Product[] = [
+const CORE_PRODUCTS: Product[] = [
   {
     id: "elfbar-bc45000",
     name: "ELFBAR BC45000",
@@ -1048,6 +1051,8 @@ export const PRODUCTS: Product[] = [
   },
 ];
 
+export const PRODUCTS: Product[] = [...CORE_PRODUCTS, ...BANG_PRODUCTS];
+
 export interface OrderItem {
   name: string;
   option: string;
@@ -1153,3 +1158,9 @@ export const NEW_ARRIVALS = PRODUCTS.filter(
 );
 export const stockLabel = (s: Stock) =>
   s === "in" ? "In stock" : s === "limited" ? "Limited stock" : "Out of stock";
+
+export const getOptionStock = (product: Product, option: string): Stock =>
+  product.optionStock?.[option] ?? product.stock;
+
+export const firstAvailableOption = (product: Product): string | undefined =>
+  product.options.find((option) => getOptionStock(product, option) !== "out");

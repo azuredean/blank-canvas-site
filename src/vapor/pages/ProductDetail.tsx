@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Heart, Minus, Plus, ShieldCheck, ShoppingCart, Truck } from "lucide-react";
 import SubHeader from "../components/SubHeader";
 import ProductVisual from "../components/ProductVisual";
-import { getProduct, GRID_PRODUCTS, stockLabel } from "../data";
+import { firstAvailableOption, getOptionStock, getProduct, GRID_PRODUCTS, stockLabel } from "../data";
 import { cn } from "../utils/cn";
 
 interface Props {
@@ -16,7 +16,9 @@ interface Props {
 
 export default function ProductDetail({ id, onBack, onAdd, onOpen, wishlisted, onToggleWish }: Props) {
   const product = getProduct(id);
-  const [option, setOption] = useState(product?.options[0] ?? "");
+  const [option, setOption] = useState(
+    product ? (firstAvailableOption(product) ?? product.options[0] ?? "") : "",
+  );
   const [qty, setQty] = useState(1);
 
   if (!product) {
@@ -33,6 +35,7 @@ export default function ProductDetail({ id, onBack, onAdd, onOpen, wishlisted, o
     .slice(0, 6);
 
   const out = product.stock === "out";
+  const selectedOut = getOptionStock(product, option) === "out";
   const wished = wishlisted;
 
   return (
@@ -92,20 +95,40 @@ export default function ProductDetail({ id, onBack, onAdd, onOpen, wishlisted, o
 
             <p className="mt-6 text-xs font-bold tracking-[0.14em] text-mute">{product.optionLabel}</p>
             <div className="mt-2.5 flex flex-wrap gap-2">
-              {product.options.map((o) => (
-                <button
-                  key={o}
-                  onClick={() => setOption(o)}
-                  className={
-                    "rounded-full px-4 py-2.5 text-sm font-bold transition active:scale-95 " +
-                    (option === o
-                      ? "bg-ink text-lemon"
-                      : "border border-line bg-card text-ink hover:border-ink/35")
-                  }
-                >
-                  {o}
-                </button>
-              ))}
+              {product.options.map((o) => {
+                const availability = getOptionStock(product, o);
+                const unavailable = availability === "out";
+                return (
+                  <button
+                    key={o}
+                    onClick={() => setOption(o)}
+                    disabled={unavailable}
+                    aria-label={`${o}: ${stockLabel(availability)}`}
+                    className={cn(
+                      "flex items-center gap-2 rounded-full px-4 py-2.5 text-left text-sm font-bold transition active:scale-95",
+                      option === o
+                        ? "bg-ink text-lemon"
+                        : "border border-line bg-card text-ink hover:border-ink/35",
+                      unavailable &&
+                        "cursor-not-allowed border-line/70 bg-paper text-mute line-through opacity-55 hover:border-line/70",
+                    )}
+                  >
+                    <span>{o}</span>
+                    {availability !== "in" && (
+                      <span
+                        className={cn(
+                          "rounded-full px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-[0.12em] no-underline",
+                          availability === "limited"
+                            ? "bg-ember/15 text-ember"
+                            : "bg-ink/8 text-mute",
+                        )}
+                      >
+                        {availability === "limited" ? "Low" : "Out"}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
 
             <div className="mt-6 flex items-center gap-4">
@@ -132,11 +155,11 @@ export default function ProductDetail({ id, onBack, onAdd, onOpen, wishlisted, o
 
             <button
               onClick={() => onAdd(product.id, option, qty)}
-              disabled={out}
+              disabled={out || selectedOut}
               className="grad-cta mt-7 hidden w-full items-center justify-center gap-2.5 rounded-full px-8 py-4 text-[15px] font-bold text-white shadow-[0_16px_32px_-14px_rgba(138,178,226,0.8)] transition hover:brightness-105 active:scale-[0.98] disabled:opacity-40 md:inline-flex"
             >
               <ShoppingCart className="size-5" strokeWidth={2.4} />
-              {out ? "Out of stock" : "Add to quote"}
+              {out || selectedOut ? "Out of stock" : "Add to quote"}
             </button>
 
             <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-[13px] font-semibold text-mute">
@@ -186,11 +209,11 @@ export default function ProductDetail({ id, onBack, onAdd, onOpen, wishlisted, o
           </div>
           <button
             onClick={() => onAdd(product.id, option, qty)}
-            disabled={out}
+            disabled={out || selectedOut}
             className="grad-cta flex items-center gap-2 rounded-full px-6 py-3.5 text-sm font-bold text-white transition active:scale-95 disabled:opacity-40"
           >
             <ShoppingCart className="size-4" strokeWidth={2.5} />
-            {out ? "Out of stock" : "Add to quote"}
+            {out || selectedOut ? "Out of stock" : "Add to quote"}
           </button>
         </div>
       </div>
