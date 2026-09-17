@@ -1153,8 +1153,10 @@ export const EU_POLICIES: { region: string; note: string }[] = [
 export const getProduct = (id: string) => PRODUCTS.find((p) => p.id === id);
 export const GRID_PRODUCTS = PRODUCTS;
 export const BESTSELLERS = BESTSELLER_IDS.map((id) => getProduct(id)).filter(Boolean) as Product[];
-export const NEW_ARRIVALS = PRODUCTS.filter(
-  (p) => p.badge === "NEW" && !(BESTSELLER_IDS as readonly string[]).includes(p.id),
+// Fixed hand-picked set — do not auto-populate from newly uploaded products.
+const NEW_ARRIVAL_IDS = ["lost-mary-mt50000-turbo", "jnr-hexafuse-120k", "vozol-neon-60k", "elfbar-trio-40k"];
+export const NEW_ARRIVALS = NEW_ARRIVAL_IDS.map((id) => PRODUCTS.find((p) => p.id === id)).filter(
+  (p): p is Product => Boolean(p),
 );
 export const stockLabel = (s: Stock) =>
   s === "in" ? "In stock" : s === "limited" ? "Limited stock" : "Out of stock";
