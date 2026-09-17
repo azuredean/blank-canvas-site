@@ -7,7 +7,14 @@ import type { OrderItem } from "../data";
 import { EU_COUNTRY_OPTIONS } from "@/lib/countries";
 import { cn } from "../utils/cn";
 import { createOrder, getIframeToken, processPayment } from "@/lib/checkout.functions";
-import { formatEur, priceOf, SHIPPING_COST } from "@/lib/prices";
+import { formatEur, priceOf } from "@/lib/prices";
+import {
+  FREE_SHIPPING_MIN_QTY,
+  MIN_QTY_PER_BRAND,
+  PAYMENT_PAUSED,
+  shippingFor,
+} from "@/lib/shipping";
+import { CONTACT } from "../data";
 
 declare global {
   interface Window {
@@ -101,9 +108,29 @@ export default function CheckoutPage({ rows, onBack, onPlaceOrder, onViewOrders,
 
   const count = rows.reduce((s, r) => s + r.qty, 0);
   const subtotal = rows.reduce((s, r) => s + priceOf(r.product.id) * r.qty, 0);
-  const total = subtotal + SHIPPING_COST;
+  const shipping = form.country ? shippingFor(form.country, count) : null;
+  const total = subtotal + (shipping ?? 0);
+
+  const brandTotals = new Map<string, number>();
+  for (const r of rows) {
+    brandTotals.set(r.product.brand, (brandTotals.get(r.product.brand) ?? 0) + r.qty);
+  }
+  const shortBrands = [...brandTotals.entries()].filter(([, q]) => q < MIN_QTY_PER_BRAND);
+
+  const mailtoHref = `mailto:${CONTACT.info}?subject=${encodeURIComponent(
+    `Order enquiry — ${count} units`,
+  )}&body=${encodeURIComponent(
+    rows.map((r) => `${r.qty}× ${r.product.name} — ${r.option}`).join("\n") +
+      `\n\nSubtotal: ${formatEur(subtotal)}` +
+      `\nShipping: ${shipping === null ? "to be confirmed" : shipping === 0 ? "Free" : formatEur(shipping)}` +
+      `\nTotal: ${formatEur(total)}` +
+      (form.name.trim() ? `\n\nName: ${form.name.trim()}` : "") +
+      (form.email.trim() ? `\nEmail: ${form.email.trim()}` : "") +
+      (form.country ? `\nCountry: ${form.country}` : ""),
+  )}`;
 
   useEffect(() => {
+    if (PAYMENT_PAUSED) return;
     if (mountedOnce.current || rows.length === 0) return;
     mountedOnce.current = true;
 
@@ -338,6 +365,25 @@ export default function CheckoutPage({ rows, onBack, onPlaceOrder, onViewOrders,
               <input className={field} value={form.phone} onChange={set("phone")} placeholder="+49 30 123456" />
             </div>
 
+            {PAYMENT_PAUSED ? (
+              <div className="animate-rise rounded-[24px] bg-card p-5 md:p-6" style={{ animationDelay: "60ms" }}>
+                <h3 className="flex items-center gap-2 font-display text-lg font-extrabold tracking-tight">
+                  <CreditCard className="size-5" strokeWidth={2.2} /> Payment
+                </h3>
+                <div className="mt-4 rounded-2xl bg-paper p-5 text-center">
+                  <p className="text-[15px] font-extrabold">Online payment is temporarily paused</p>
+                  <p className="mt-1.5 text-[13px] font-medium leading-relaxed text-mute">
+                    You can still build your order here. Send it to us by email and we'll confirm
+                    stock, shipping and payment within 24 h (Mon–Fri).
+                  </p>
+                </div>
+                <div className="mt-4 rounded-2xl border border-line p-4 text-[12px] font-semibold leading-relaxed text-mute">
+                  <p>· No dispatch on Saturdays or Sundays.</p>
+                  <p>· Free shipping from {FREE_SHIPPING_MIN_QTY} units; below that a destination surcharge applies (shown in the summary).</p>
+                  <p>· No after-sales for: wrong recipient details or lost/unsigned parcels, secondary customs clearance stalls, recipient absent at delivery, or partial product loss in transit. Logistics issues are not covered.</p>
+                </div>
+              </div>
+            ) : (
             <div className="animate-rise rounded-[24px] bg-card p-5 md:p-6" style={{ animationDelay: "60ms" }}>
               <h3 className="flex items-center gap-2 font-display text-lg font-extrabold tracking-tight">
                 <CreditCard className="size-5" strokeWidth={2.2} /> Credit card
@@ -357,6 +403,7 @@ export default function CheckoutPage({ rows, onBack, onPlaceOrder, onViewOrders,
                 Card details are entered directly with our payment provider — Vapofolio never sees them.
               </p>
             </div>
+            )}
           </div>
 
           <div className="animate-rise h-fit rounded-[24px] bg-card p-5 md:sticky md:top-24" style={{ animationDelay: "90ms" }}>
@@ -377,23 +424,52 @@ export default function CheckoutPage({ rows, onBack, onPlaceOrder, onViewOrders,
             </div>
             <div className="mt-1 flex justify-between text-[13px] font-semibold text-mute">
               <span>Shipping</span>
-              <span className="text-ink">{SHIPPING_COST === 0 ? "Included" : formatEur(SHIPPING_COST)}</span>
+              <span className="text-ink">
+                {shipping === null ? "Pick a country" : shipping === 0 ? "Free" : formatEur(shipping)}
+              </span>
             </div>
+            {count < FREE_SHIPPING_MIN_QTY && (
+              <p className="mt-1 text-[11px] font-semibold text-mute">
+                Free shipping from {FREE_SHIPPING_MIN_QTY} units — {FREE_SHIPPING_MIN_QTY - count} more to go.
+              </p>
+            )}
             <div className="mt-3 flex justify-between border-t border-line pt-3">
               <span className="font-display text-lg font-extrabold">Total</span>
               <span className="font-display text-lg font-extrabold">{formatEur(total)}</span>
             </div>
 
-            {payError && <p className="mt-3 text-[13px] font-bold text-[#c2453f]">{payError}</p>}
+            {payError && !PAYMENT_PAUSED && <p className="mt-3 text-[13px] font-bold text-[#c2453f]">{payError}</p>}
 
+            {shortBrands.length > 0 && (
+              <p className="mt-3 rounded-xl bg-paper px-3 py-2.5 text-[12px] font-bold leading-relaxed text-ember">
+                Minimum {MIN_QTY_PER_BRAND} units per brand — please add more:{" "}
+                {shortBrands.map(([b, q]) => `${b} (${q}/${MIN_QTY_PER_BRAND})`).join(", ")}
+              </p>
+            )}
+
+            {PAYMENT_PAUSED ? (
+              shortBrands.length > 0 ? (
+                <span className="grad-cta mt-5 flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-full px-7 py-4 text-[15px] font-bold text-white opacity-50">
+                  Send order by email
+                </span>
+              ) : (
+                <a
+                  href={mailtoHref}
+                  className="grad-cta mt-5 flex w-full items-center justify-center gap-2 rounded-full px-7 py-4 text-[15px] font-bold text-white shadow-[0_16px_32px_-14px_rgba(138,178,226,0.8)] transition hover:brightness-105 active:scale-[0.98]"
+                >
+                  Send order by email
+                </a>
+              )
+            ) : (
             <button
               onClick={submit}
-              disabled={submitting}
+              disabled={submitting || shortBrands.length > 0}
               className="grad-cta mt-5 flex w-full items-center justify-center gap-2 rounded-full px-7 py-4 text-[15px] font-bold text-white shadow-[0_16px_32px_-14px_rgba(138,178,226,0.8)] transition hover:brightness-105 active:scale-[0.98] disabled:opacity-60"
             >
               {submitting && <Loader2 className="size-4 animate-spin" />}
               {submitting ? "Processing…" : `Pay ${formatEur(total)}`}
             </button>
+            )}
             <p className="mt-3 flex items-center justify-center gap-1.5 text-[11px] font-bold text-mute">
               <ShieldCheck className="size-3.5" strokeWidth={2.4} /> Age verified at dispatch · 18+
             </p>
