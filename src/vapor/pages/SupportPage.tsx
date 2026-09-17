@@ -17,6 +17,22 @@ const FAQS = [
     a: "We quote across the EU and EEA wherever distance sales are permitted. Belgium, Denmark and Finland currently restrict cross-border e-cigarette sales, so those destinations may be declined.",
   },
   {
+    q: "What is the minimum order?",
+    a: "Minimum 10 units per brand. You can mix flavors freely within a brand to reach the minimum.",
+  },
+  {
+    q: "How much is shipping?",
+    a: "Orders of 50 units or more ship free. Below that, a surcharge of €5–€20 applies depending on destination and order size — the exact amount is shown at checkout once you select your country.",
+  },
+  {
+    q: "When do orders ship?",
+    a: "Orders are packed and dispatched Monday to Friday. There is no dispatch on Saturdays or Sundays.",
+  },
+  {
+    q: "Which delivery issues are not covered?",
+    a: "No after-sales is possible for: (1) incorrect recipient details, or parcels lost or unsigned because of them; (2) tracking gaps caused by secondary customs clearance; (3) parcels lost because the recipient was absent at delivery; (4) partial product loss inside the parcel during transit. Logistics issues are not eligible for after-sales.",
+  },
+  {
     q: "What nicotine strengths are in the catalog?",
     a: "The catalog includes 0%, 2%, 3% and 5% depending on the device, plus TPD-oriented 2% pod systems (JNR Areo X, FOX, Panda). Strengths actually shipped follow destination-market law.",
   },

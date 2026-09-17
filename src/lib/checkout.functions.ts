@@ -26,7 +26,8 @@ const createOrderSchema = z.object({
 export const createOrder = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => createOrderSchema.parse(data))
   .handler(async ({ data }) => {
-    const { PRODUCT_PRICES, SHIPPING_COST, CURRENCY } = await import("./prices.server");
+    const { PRODUCT_PRICES, CURRENCY } = await import("./prices.server");
+    const { shippingFor } = await import("./shipping");
     const { toCountryCode } = await import("./countries");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
@@ -34,14 +35,17 @@ export const createOrder = createServerFn({ method: "POST" })
     if (!countryCode) throw new Error("Unsupported delivery country");
 
     let subtotal = 0;
+    let totalQty = 0;
     const items = data.items.map((item) => {
       const unit = PRODUCT_PRICES[item.id];
       if (unit === undefined) throw new Error(`Unknown product: ${item.id}`);
       subtotal += unit * item.qty;
+      totalQty += item.qty;
       return { ...item, unit_price: unit };
     });
 
-    const total = subtotal + SHIPPING_COST;
+    const shipping = shippingFor(countryCode, totalQty);
+    const total = subtotal + shipping;
     const orderNumber = `VF${Date.now().toString().slice(-9)}${Math.floor(Math.random() * 900 + 100)}`;
     const lookupToken = crypto.randomUUID();
 
@@ -51,7 +55,7 @@ export const createOrder = createServerFn({ method: "POST" })
       status: "pending",
       currency: CURRENCY,
       subtotal,
-      shipping: SHIPPING_COST,
+      shipping,
       total,
       items,
       customer_email: data.customer.email,
