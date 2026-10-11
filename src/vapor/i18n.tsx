@@ -5,7 +5,7 @@ export type Lang = "en" | "de";
 
 interface LangCtx {
   lang: Lang;
-  productId?: string;
+  productId?: string | undefined;
 }
 
 export const LangContext = createContext<LangCtx>({ lang: "en" });
