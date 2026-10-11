@@ -13,7 +13,7 @@ export default function ProductVisual({ product, className, imgClassName }: Prop
       <div className={cn("flex items-center justify-center overflow-hidden", className)}>
         <img
           src={product.image}
-          alt=""
+          alt={product.name}
           className={cn(
             "max-h-full max-w-full object-contain transition-transform duration-500 ease-out group-hover:-translate-y-1.5",
             imgClassName,
