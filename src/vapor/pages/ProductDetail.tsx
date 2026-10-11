@@ -4,6 +4,7 @@ import SubHeader from "../components/SubHeader";
 import ProductVisual from "../components/ProductVisual";
 import { firstAvailableOption, getOptionStock, getProduct, GRID_PRODUCTS, stockLabel } from "../data";
 import { cn } from "../utils/cn";
+import { LangSwitch, useLang } from "../i18n";
 import {
   MAXIMUM_PER_FLAVOR,
   minimumOrderQtyForBrand,
@@ -19,6 +20,9 @@ interface Props {
 }
 
 export default function ProductDetail({ id, onBack, onAdd, onOpen, wishlisted, onToggleWish }: Props) {
+  const { lang } = useLang();
+  const de = lang === "de";
+  const tr = (en: string, deText: string) => (de ? deText : en);
   const product = getProduct(id);
   const [option, setOption] = useState(
     product ? (firstAvailableOption(product) ?? product.options[0] ?? "") : "",
@@ -29,8 +33,8 @@ export default function ProductDetail({ id, onBack, onAdd, onOpen, wishlisted, o
   if (!product) {
     return (
       <div>
-        <SubHeader title="Product" onBack={onBack} />
-        <p className="py-24 text-center text-sm font-semibold text-mute">This product no longer exists.</p>
+        <SubHeader title={tr("Product", "Produkt")} onBack={onBack} />
+        <p className="py-24 text-center text-sm font-semibold text-mute">{tr("This product no longer exists.", "Dieses Produkt existiert nicht mehr.")}</p>
       </div>
     );
   }
@@ -49,6 +53,8 @@ export default function ProductDetail({ id, onBack, onAdd, onOpen, wishlisted, o
         title={product.brand}
         onBack={onBack}
         right={
+          <div className="flex items-center gap-1.5">
+          <LangSwitch />
           <button
             onClick={() => onToggleWish(product.id)}
             aria-label="Toggle wishlist"
@@ -59,6 +65,7 @@ export default function ProductDetail({ id, onBack, onAdd, onOpen, wishlisted, o
           >
             <Heart className="size-5" strokeWidth={2.3} fill={wished ? "currentColor" : "none"} />
           </button>
+          </div>
         }
       />
 
@@ -86,19 +93,19 @@ export default function ProductDetail({ id, onBack, onAdd, onOpen, wishlisted, o
             <div className="flex flex-wrap items-center gap-3 text-[13px] font-semibold text-mute">
               <span className="text-ink">{product.kind}</span>
               <span>·</span>
-              <span>{stockLabel(product.stock)}</span>
+              <span>{de ? ({ in: "Auf Lager", limited: "Begrenzt verfügbar", out: "Ausverkauft" } as const)[product.stock] : stockLabel(product.stock)}</span>
               <span>·</span>
-              <span>{product.options.length} {product.optionLabel.toLowerCase()}s</span>
+              <span>{product.options.length} {de ? (product.optionLabel === "FLAVOR" ? "Sorten" : "Nikotinstärken") : `${product.optionLabel.toLowerCase()}s`}</span>
             </div>
 
-            <h2 className="mt-2 font-display text-3xl font-extrabold tracking-[-0.03em] md:text-4xl">
+            <h1 className="mt-2 font-display text-3xl font-extrabold tracking-[-0.03em] md:text-4xl">
               {product.name}
-            </h2>
-            <p className="mt-3 font-display text-2xl font-extrabold">Quote on request</p>
+            </h1>
+            <p className="mt-3 font-display text-2xl font-extrabold">{tr("Quote on request", "Preis: auf Anfrage")}</p>
 
             <p className="mt-4 text-[15px] font-medium leading-relaxed text-mute">{product.desc}</p>
 
-            <p className="mt-6 text-xs font-bold tracking-[0.14em] text-mute">{product.optionLabel}</p>
+            <p className="mt-6 text-xs font-bold tracking-[0.14em] text-mute">{de ? (product.optionLabel === "FLAVOR" ? "SORTE" : "NIKOTIN") : product.optionLabel}</p>
             <div className="mt-2.5 flex flex-wrap gap-2">
               {product.options.map((o) => {
                 const availability = getOptionStock(product, o);
@@ -156,7 +163,7 @@ export default function ProductDetail({ id, onBack, onAdd, onOpen, wishlisted, o
                 </button>
               </div>
               <span className="text-sm font-semibold text-mute">
-                Minimum {minimumQty} units per flavor
+                {de ? "MOQ: [wird ergänzt]" : `Minimum ${minimumQty} units per flavor`}
               </span>
             </div>
 
@@ -166,15 +173,15 @@ export default function ProductDetail({ id, onBack, onAdd, onOpen, wishlisted, o
               className="grad-cta mt-7 hidden w-full items-center justify-center gap-2.5 rounded-full px-8 py-4 text-[15px] font-bold text-white shadow-[0_16px_32px_-14px_rgba(138,178,226,0.8)] transition hover:brightness-105 active:scale-[0.98] disabled:opacity-40 md:inline-flex"
             >
               <ShoppingCart className="size-5" strokeWidth={2.4} />
-              {out || selectedOut ? "Out of stock" : "Add to quote"}
+              {out || selectedOut ? tr("Out of stock", "Ausverkauft") : tr("Add to quote", "Zur Anfrage hinzufügen")}
             </button>
 
             <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-[13px] font-semibold text-mute">
               <span className="inline-flex items-center gap-1.5">
-                <Truck className="size-4 text-ink" strokeWidth={2.2} /> EU warehouse dispatch
+                <Truck className="size-4 text-ink" strokeWidth={2.2} /> {tr("EU warehouse dispatch", "Versand aus EU-Lager")}
               </span>
               <span className="inline-flex items-center gap-1.5">
-                <ShieldCheck className="size-4 text-ink" strokeWidth={2.2} /> Adult trade · 18+
+                <ShieldCheck className="size-4 text-ink" strokeWidth={2.2} /> {tr("Adult trade · 18+", "Nur Fachhandel · 18+")}
               </span>
             </div>
           </div>
@@ -189,7 +196,7 @@ export default function ProductDetail({ id, onBack, onAdd, onOpen, wishlisted, o
           ))}
         </div>
 
-        <h3 className="mt-10 font-display text-xl font-extrabold tracking-tight">You may also like</h3>
+        <h3 className="mt-10 font-display text-xl font-extrabold tracking-tight">{tr("You may also like", "Das könnte dir auch gefallen")}</h3>
         <div className="no-scrollbar -mx-4 mt-4 flex gap-3.5 overflow-x-auto px-4 pb-2 md:mx-0 md:px-0">
           {related.map((p, i) => (
             <button
@@ -220,7 +227,7 @@ export default function ProductDetail({ id, onBack, onAdd, onOpen, wishlisted, o
             className="grad-cta flex items-center gap-2 rounded-full px-6 py-3.5 text-sm font-bold text-white transition active:scale-95 disabled:opacity-40"
           >
             <ShoppingCart className="size-4" strokeWidth={2.5} />
-            {out || selectedOut ? "Out of stock" : "Add to quote"}
+            {out || selectedOut ? tr("Out of stock", "Ausverkauft") : tr("Add to quote", "Zur Anfrage hinzufügen")}
           </button>
         </div>
       </div>
