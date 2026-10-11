@@ -1,6 +1,6 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 
-import VaporApp from "../vapor/App";
+import SeoProductPage from "../vapor/pages/SeoProductPage";
 import { getProduct } from "../vapor/data";
 import { pageHead } from "@/lib/seo";
 
@@ -28,5 +28,6 @@ export const Route = createFileRoute("/products/$slug")({
 });
 
 function ProductPage() {
-  return <VaporApp />;
+  const { slug } = Route.useParams();
+  return <SeoProductPage lang="en" productId={slug} />;
 }
