@@ -29,5 +29,5 @@ export const Route = createFileRoute("/de/products/$slug")({
 
 function ProductPage() {
   const { slug } = Route.useParams();
-  return <VaporApp lang="de" productId={slug} />;
+  return <VaporApp />;
 }

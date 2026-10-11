@@ -13,5 +13,5 @@ export const Route = createFileRoute("/")({
       description:
         "EU wholesale catalog of ELFBAR, JNR, VOZOL, Fumot and Lost Mary devices. Adults 18+ only. Prices on request.",
     }),
-  component: () => <VaporApp lang="en" />,
+  component: () => <VaporApp />,
 });

@@ -13,5 +13,5 @@ export const Route = createFileRoute("/de/")({
       description:
         "EU-Großhandelskatalog für ELFBAR, JNR, VOZOL, Fumot und Lost Mary. Nur für Erwachsene ab 18. Preise auf Anfrage.",
     }),
-  component: () => <VaporApp lang="de" />,
+  component: () => <VaporApp />,
 });
