@@ -1,6 +1,7 @@
 import { Heart, Plus } from "lucide-react";
 import { getOptionStock, type Product } from "../data";
 import ProductVisual from "./ProductVisual";
+import { productPath, useLang } from "../i18n";
 
 interface Props {
   product: Product;
@@ -21,6 +22,8 @@ export default function ProductCard({
   onToggleWish,
   rank,
 }: Props) {
+  const { lang } = useLang();
+  const de = lang === "de";
   const out = product.stock === "out";
   const availableOptions = product.options.filter(
     (option) => getOptionStock(product, option) !== "out",
@@ -67,16 +70,24 @@ export default function ProductCard({
       <ProductVisual product={product} className="h-40 md:h-52" />
 
       <p className="mt-3 text-[11px] font-bold tracking-[0.14em] text-mute">{product.brand}</p>
-      <h3 className="mt-0.5 text-[15px] font-bold leading-snug tracking-tight md:text-base">{product.name}</h3>
+      <h3 className="mt-0.5 text-[15px] font-bold leading-snug tracking-tight md:text-base">
+        <a href={productPath(product.id, lang)} onClick={(e) => e.preventDefault()}>
+          {product.name}
+        </a>
+      </h3>
 
       <div className="mt-1.5 flex items-center justify-between gap-2">
         <div className="min-w-0">
           <span className="font-display text-lg font-extrabold tracking-tight">{product.puffs ?? product.kind}</span>
           <p className="truncate text-[11px] font-semibold text-mute">
             {product.optionStock
-              ? `${availableOptions}/${product.options.length} flavors available`
+              ? de
+                ? `${availableOptions}/${product.options.length} Sorten verfügbar`
+                : `${availableOptions}/${product.options.length} flavors available`
               : product.options.length > 1
-                ? `${product.options.length} options`
+                ? de
+                  ? `${product.options.length} Optionen`
+                  : `${product.options.length} options`
                 : product.kind}
           </p>
         </div>

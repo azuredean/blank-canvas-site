@@ -57,7 +57,7 @@ export default function Hero({ onOpen }: Props) {
           {product.image ? (
             <img
               src={product.image}
-              alt=""
+              alt={product.name}
               className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
             />
           ) : (

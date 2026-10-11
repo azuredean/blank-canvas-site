@@ -1,5 +1,6 @@
 import { Menu, Search } from "lucide-react";
 import Wordmark from "./Wordmark";
+import { LangSwitch } from "../i18n";
 
 interface Props {
   onMenu: () => void;
@@ -22,6 +23,8 @@ export default function TopBar({ onMenu, onSearch }: Props) {
           <Wordmark className="text-[20px] md:text-[23px]" />
         </div>
 
+        <div className="flex items-center gap-1.5">
+        <LangSwitch />
         <button
           onClick={onSearch}
           aria-label="Search products"
@@ -29,6 +32,7 @@ export default function TopBar({ onMenu, onSearch }: Props) {
         >
           <Search className="size-[21px]" strokeWidth={2.4} />
         </button>
+        </div>
       </div>
     </header>
   );

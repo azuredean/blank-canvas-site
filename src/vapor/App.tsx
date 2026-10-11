@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
+import { LangContext, type Lang } from "./i18n";
 import TopBar from "./components/TopBar";
 import Hero from "./components/Hero";
 import ProductCard from "./components/ProductCard";
@@ -65,9 +67,17 @@ function save(key: string, value: unknown) {
   }
 }
 
-export default function App() {
+export default function App({ lang = "en", productId }: { lang?: Lang; productId?: string } = {}) {
+  const de = lang === "de";
+  const tr = (en: string, deText: string) => (de ? deText : en);
+  const routerNavigate = useNavigate();
   const [ageOk, setAgeOk] = useState(false);
-  const [route, setRoute] = useState<Route>({ name: "home" });
+  const [route, setRoute] = useState<Route>(
+    productId ? { name: "product", id: productId } : { name: "home" },
+  );
+  useEffect(() => {
+    setRoute(productId ? { name: "product", id: productId } : { name: "home" });
+  }, [productId]);
   const [filter, setFilter] = useState<Filter>("All");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [wishlist, setWishlist] = useState<string[]>([]);
@@ -135,6 +145,20 @@ export default function App() {
   };
 
   const navigate = (r: Route) => {
+    if (r.name === "product") {
+      void routerNavigate(
+        de
+          ? { to: "/de/products/$slug", params: { slug: r.id } }
+          : { to: "/products/$slug", params: { slug: r.id } },
+      );
+      window.scrollTo({ top: 0 });
+      return;
+    }
+    if (r.name === "home" && productId) {
+      void routerNavigate({ to: de ? "/de" : "/" });
+      window.scrollTo({ top: 0 });
+      return;
+    }
     setRoute(r);
     window.scrollTo({ top: 0 });
   };
@@ -273,16 +297,14 @@ export default function App() {
   const filtered =
     filter === "All" ? GRID_PRODUCTS : GRID_PRODUCTS.filter((p) => p.brand === filter);
 
-  if (!ageOk) {
-    return (
-      <div className="min-h-screen font-body text-ink">
-        <AgeGate onConfirm={confirmAge} />
-      </div>
-    );
-  }
-
   return (
+    <LangContext.Provider value={{ lang, productId }}>
     <div className="min-h-screen font-body text-ink">
+      {!ageOk && (
+        <div className="fixed inset-0 z-[100] overflow-y-auto">
+          <AgeGate onConfirm={confirmAge} />
+        </div>
+      )}
       <div
         aria-hidden
         className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(900px_420px_at_72%_-12%,rgba(138,178,226,0.10),transparent_70%),radial-gradient(720px_380px_at_12%_-4%,rgba(231,154,107,0.09),transparent_70%)]"
@@ -296,15 +318,15 @@ export default function App() {
 
             <section className="mt-10 md:mt-14">
               <SectionTitle
-                kicker="BESTSELLERS"
-                title="Most requested"
+                kicker={tr("BESTSELLERS", "BESTSELLER")}
+                title={tr("Most requested", "Am meisten angefragt")}
                 action={
                   <button
                     type="button"
                     onClick={() => document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth" })}
                     className="hidden text-[13px] font-bold text-mute transition hover:text-ink md:block"
                   >
-                    See catalog
+                    {tr("See catalog", "Zum Katalog")}
                   </button>
                 }
               />
@@ -339,7 +361,7 @@ export default function App() {
             </div>
 
             <section id="catalog" className="mt-10 scroll-mt-4 md:mt-14">
-              <SectionTitle kicker="CATALOG" title="All devices" />
+              <SectionTitle kicker={tr("CATALOG", "KATALOG")} title={tr("All devices", "Alle Geräte")} />
               <div className="no-scrollbar flex gap-2.5 overflow-x-auto pb-1 md:gap-3">
                 {CATEGORIES.map((c) => {
                   const active = filter === c;
@@ -354,7 +376,7 @@ export default function App() {
                           : "border border-line bg-card text-ink hover:border-ink/35")
                       }
                     >
-                      {c}
+                      {c === "All" ? tr("All", "Alle") : c}
                     </button>
                   );
                 })}
@@ -376,7 +398,7 @@ export default function App() {
 
               {filtered.length === 0 && (
                 <p className="animate-fade py-20 text-center text-sm font-semibold text-mute">
-                  No products in this brand yet.
+                  {tr("No products in this brand yet.", "Noch keine Produkte dieser Marke.")}
                 </p>
               )}
             </section>
@@ -478,5 +500,6 @@ export default function App() {
 
       {toast && <Toast id={toast.id} message={toast.message} />}
     </div>
+    </LangContext.Provider>
   );
 }

@@ -11,8 +11,12 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PaymentReturnRouteImport } from './routes/payment-return'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as DeIndexRouteImport } from './routes/de.index'
+import { Route as ProductsSlugRouteImport } from './routes/products.$slug'
 import { Route as ApiPublicPaymentReturnRouteImport } from './routes/api/public/payment-return'
 import { Route as ApiPublicPaymentWebhookRouteImport } from './routes/api/public/payment-webhook'
+import { Route as DeProductsSlugRouteImport } from './routes/de.products.$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,6 +26,21 @@ const IndexRoute = IndexRouteImport.update({
 const PaymentReturnRoute = PaymentReturnRouteImport.update({
   id: '/payment-return',
   path: '/payment-return',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DeIndexRoute = DeIndexRouteImport.update({
+  id: '/de/',
+  path: '/de/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductsSlugRoute = ProductsSlugRouteImport.update({
+  id: '/products/$slug',
+  path: '/products/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicPaymentReturnRoute = ApiPublicPaymentReturnRouteImport.update({
@@ -34,52 +53,85 @@ const ApiPublicPaymentWebhookRoute = ApiPublicPaymentWebhookRouteImport.update({
   path: '/api/public/payment-webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DeProductsSlugRoute = DeProductsSlugRouteImport.update({
+  id: '/de/products/$slug',
+  path: '/de/products/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/payment-return': typeof PaymentReturnRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/products/$slug': typeof ProductsSlugRoute
+  '/de/': typeof DeIndexRoute
   '/api/public/payment-return': typeof ApiPublicPaymentReturnRoute
   '/api/public/payment-webhook': typeof ApiPublicPaymentWebhookRoute
+  '/de/products/$slug': typeof DeProductsSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/payment-return': typeof PaymentReturnRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/products/$slug': typeof ProductsSlugRoute
+  '/de': typeof DeIndexRoute
   '/api/public/payment-return': typeof ApiPublicPaymentReturnRoute
   '/api/public/payment-webhook': typeof ApiPublicPaymentWebhookRoute
+  '/de/products/$slug': typeof DeProductsSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/payment-return': typeof PaymentReturnRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/products/$slug': typeof ProductsSlugRoute
+  '/de/': typeof DeIndexRoute
   '/api/public/payment-return': typeof ApiPublicPaymentReturnRoute
   '/api/public/payment-webhook': typeof ApiPublicPaymentWebhookRoute
+  '/de/products/$slug': typeof DeProductsSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/payment-return'
+    | '/sitemap.xml'
+    | '/products/$slug'
+    | '/de/'
     | '/api/public/payment-return'
     | '/api/public/payment-webhook'
+    | '/de/products/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/payment-return'
+    | '/sitemap.xml'
+    | '/products/$slug'
+    | '/de'
     | '/api/public/payment-return'
     | '/api/public/payment-webhook'
+    | '/de/products/$slug'
   id:
     | '__root__'
     | '/'
     | '/payment-return'
+    | '/sitemap.xml'
+    | '/products/$slug'
+    | '/de/'
     | '/api/public/payment-return'
     | '/api/public/payment-webhook'
+    | '/de/products/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   PaymentReturnRoute: typeof PaymentReturnRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  ProductsSlugRoute: typeof ProductsSlugRoute
+  DeIndexRoute: typeof DeIndexRoute
   ApiPublicPaymentReturnRoute: typeof ApiPublicPaymentReturnRoute
   ApiPublicPaymentWebhookRoute: typeof ApiPublicPaymentWebhookRoute
+  DeProductsSlugRoute: typeof DeProductsSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -98,6 +150,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PaymentReturnRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/de/': {
+      id: '/de/'
+      path: '/de'
+      fullPath: '/de/'
+      preLoaderRoute: typeof DeIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/products/$slug': {
+      id: '/products/$slug'
+      path: '/products/$slug'
+      fullPath: '/products/$slug'
+      preLoaderRoute: typeof ProductsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/payment-return': {
       id: '/api/public/payment-return'
       path: '/api/public/payment-return'
@@ -112,14 +185,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPaymentWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/de/products/$slug': {
+      id: '/de/products/$slug'
+      path: '/de/products/$slug'
+      fullPath: '/de/products/$slug'
+      preLoaderRoute: typeof DeProductsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   PaymentReturnRoute: PaymentReturnRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
+  ProductsSlugRoute: ProductsSlugRoute,
+  DeIndexRoute: DeIndexRoute,
   ApiPublicPaymentReturnRoute: ApiPublicPaymentReturnRoute,
   ApiPublicPaymentWebhookRoute: ApiPublicPaymentWebhookRoute,
+  DeProductsSlugRoute: DeProductsSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
