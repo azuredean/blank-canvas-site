@@ -47,6 +47,7 @@ export const BANG_PRODUCTS: Product[] = [
     ],
     stock: "in",
     image: "/products/bang-king-30k-2in1.png",
+    catalogPriceLabel: "€12.90 – €13.90",
     puffs: "30K",
   },
   {
@@ -152,6 +153,7 @@ export const BANG_PRODUCTS: Product[] = [
     ],
     stock: "in",
     image: "/products/bang-king-50k-2in1.png",
+    catalogPriceLabel: "€10.10",
     puffs: "50K",
   },
   {
@@ -217,6 +219,7 @@ export const BANG_PRODUCTS: Product[] = [
     ],
     stock: "in",
     image: "/products/bang-blaze-100k-6in1.png",
+    catalogPriceLabel: "€12.10",
     puffs: "100K",
   },
   {
@@ -354,6 +357,7 @@ export const BANG_PRODUCTS: Product[] = [
     ],
     stock: "out",
     image: "/products/bang-king-twins-50k-2in1.png",
+    catalogPriceLabel: "€10.10",
     puffs: "50K",
   },
   {
@@ -413,6 +417,7 @@ export const BANG_PRODUCTS: Product[] = [
     ],
     stock: "in",
     image: "/products/bang-legend-150k-6in1.png",
+    catalogPriceLabel: "€12.80",
     puffs: "150K",
   },
   {
@@ -461,6 +466,7 @@ export const BANG_PRODUCTS: Product[] = [
     ],
     stock: "in",
     image: "/products/bang-legend-110k-3in1.png",
+    catalogPriceLabel: "€11.80 – €13.00",
     puffs: "110K",
   },
   {
@@ -515,6 +521,7 @@ export const BANG_PRODUCTS: Product[] = [
     ],
     stock: "in",
     image: "/products/bang-legend-120k.png",
+    catalogPriceLabel: "€12.90 – €13.50",
     puffs: "120K",
   },
   {
@@ -701,6 +708,7 @@ export const BANG_PRODUCTS: Product[] = [
     ],
     stock: "limited",
     image: "/products/bang-ice-cool-60k.png",
+    catalogPriceLabel: "€10.90",
     puffs: "60K",
   },
   {
@@ -891,6 +899,7 @@ export const BANG_PRODUCTS: Product[] = [
     ],
     stock: "in",
     image: "/products/qqbang-100k-pro.png",
+    catalogPriceLabel: "€12.60",
     puffs: "100K",
   },
   {
@@ -1136,6 +1145,7 @@ export const BANG_PRODUCTS: Product[] = [
     ],
     stock: "in",
     image: "/products/bang-200k.png",
+    catalogPriceLabel: "€12.30",
     puffs: "200K",
   },
   {
