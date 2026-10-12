@@ -101,7 +101,9 @@ export default function ProductDetail({ id, onBack, onAdd, onOpen, wishlisted, o
             <h1 className="mt-2 font-display text-3xl font-extrabold tracking-[-0.03em] md:text-4xl">
               {product.name}
             </h1>
-            <p className="mt-3 font-display text-2xl font-extrabold">{tr("Quote on request", "Preis: auf Anfrage")}</p>
+            <p className="mt-3 font-display text-2xl font-extrabold">
+              {product.catalogPriceLabel ?? tr("Quote on request", "Preis: auf Anfrage")}
+            </p>
 
             <p className="mt-4 text-[15px] font-medium leading-relaxed text-mute">{product.desc}</p>
 

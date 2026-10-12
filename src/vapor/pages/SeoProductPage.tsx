@@ -109,7 +109,7 @@ export default function SeoProductPage({ lang, productId }: Props) {
                     <div className="flex justify-between gap-4">
                       <dt className="font-semibold text-mute">{de ? "Preis" : "Price"}</dt>
                       <dd className="font-extrabold">
-                        {de ? "Preis: auf Anfrage" : "Quote on request"}
+                        {product.catalogPriceLabel ?? (de ? "Preis: auf Anfrage" : "Quote on request")}
                       </dd>
                     </div>
                     <div className="pt-1">

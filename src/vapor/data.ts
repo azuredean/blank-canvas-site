@@ -19,6 +19,7 @@ export interface Product {
   stock: Stock;
   image?: string;
   puffs?: string;
+  catalogPriceLabel?: string;
 }
 
 export const CATEGORIES = ["All", "ELFBAR", "Lost Mary", "Fumot", "JNR", "Vozol", "BANG"] as const;
