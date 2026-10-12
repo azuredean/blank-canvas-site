@@ -98,6 +98,14 @@ export default function SeoProductPage({ lang, productId }: Props) {
                     </p>
                   )}
                   <dl className="mt-4 space-y-2 text-[14px]">
+                    {product.specs
+                      .filter(([key]) => key === "E-liquid" || key === "Charge port")
+                      .map(([key, value]) => (
+                        <div key={key} className="flex justify-between gap-4">
+                          <dt className="font-semibold text-mute">{key}</dt>
+                          <dd className="font-extrabold">{value}</dd>
+                        </div>
+                      ))}
                     <div className="flex justify-between gap-4">
                       <dt className="font-semibold text-mute">{de ? "Preis" : "Price"}</dt>
                       <dd className="font-extrabold">
