@@ -49,7 +49,7 @@ export default function SeoHomeDe() {
           <p className="mt-3 max-w-2xl text-[14px] font-medium leading-relaxed text-mute">
             Großhandelskatalog für ELFBAR, JNR, VOZOL, Fumot und Lost Mary Geräte.
             Lieferung in die EU für lizenzierte Händler. Nur für Erwachsene ab 18 Jahren.
-            Preis: auf Anfrage · MOQ: [wird ergänzt].
+            Preis: auf Anfrage. Mindestbestellmenge: 10 Stück derselben Marke (verschiedene Marken werden nicht zusammengerechnet).
           </p>
           <p className="mt-3 text-[13px] font-semibold">
             <Link to="/" className="underline underline-offset-4 hover:text-mute">
@@ -80,7 +80,7 @@ export default function SeoHomeDe() {
                   </p>
                   <p className="mt-0.5 text-[14px] font-bold leading-snug">{p.name}</p>
                   <p className="mt-1.5 text-[12px] font-semibold text-mute">
-                    Preis: auf Anfrage · MOQ: [wird ergänzt]
+                    Preis: auf Anfrage · Mindestbestellmenge: 10 Stück derselben Marke
                   </p>
                 </div>
               </a>
