@@ -112,12 +112,14 @@ export default function SeoProductPage({ lang, productId }: Props) {
                         {de ? "Preis: auf Anfrage" : "Quote on request"}
                       </dd>
                     </div>
-                    <div className="flex justify-between gap-4">
-                      <dt className="font-semibold text-mute">MOQ</dt>
-                      <dd className="font-extrabold">
-                        {de ? "MOQ: [wird ergänzt]" : "MOQ: [to be added]"}
+                    <div className="pt-1">
+                      <dd className="text-[13px] font-extrabold leading-snug">
+                        {de
+                          ? "Mindestbestellmenge: 10 Stück derselben Marke (verschiedene Marken werden nicht zusammengerechnet)."
+                          : "Minimum order: 10 units of the same brand (different brands do not combine)."}
                       </dd>
                     </div>
+
                   </dl>
 
                   {product.options.length > 0 && (

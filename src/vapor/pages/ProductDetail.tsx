@@ -163,8 +163,11 @@ export default function ProductDetail({ id, onBack, onAdd, onOpen, wishlisted, o
                 </button>
               </div>
               <span className="text-sm font-semibold text-mute">
-                {de ? "MOQ: [wird ergänzt]" : `Minimum ${minimumQty} units per flavor`}
+                {de
+                  ? "Mindestbestellmenge: 10 Stück derselben Marke (verschiedene Marken werden nicht zusammengerechnet)."
+                  : "Minimum order: 10 units of the same brand (different brands do not combine)."}
               </span>
+
             </div>
 
             <button
