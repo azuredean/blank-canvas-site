@@ -193,7 +193,9 @@ export default function ProductDetail({ id, onBack, onAdd, onOpen, wishlisted, o
         </div>
 
         <div className="mt-8 grid gap-3 sm:grid-cols-3">
-          {product.specs.map(([k, v]) => (
+          {product.specs
+            .filter(([k]) => k !== "Warehouse")
+            .map(([k, v]) => (
             <div key={k} className="rounded-2xl bg-card p-4">
               <p className="text-[11px] font-bold tracking-[0.14em] text-mute">{k.toUpperCase()}</p>
               <p className="mt-1 font-display text-lg font-extrabold tracking-tight">{v}</p>
