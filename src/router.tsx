@@ -10,6 +10,8 @@ export const getRouter = () => {
     context: { queryClient },
     scrollRestoration: true,
     defaultPreloadStaleTime: 0,
+    // Prefer non-trailing-slash URLs (matches sitemap + canonicals).
+    trailingSlash: "never",
   });
 
   return router;

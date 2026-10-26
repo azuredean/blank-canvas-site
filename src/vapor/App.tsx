@@ -66,7 +66,8 @@ function save(key: string, value: unknown) {
 }
 
 export default function App() {
-  const [ageOk, setAgeOk] = useState(false);
+  // SSR default true so `/` HTML includes catalog content; client useEffect refines from localStorage.
+  const [ageOk, setAgeOk] = useState(true);
   const [route, setRoute] = useState<Route>({ name: "home" });
   const [filter, setFilter] = useState<Filter>("All");
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -273,16 +274,15 @@ export default function App() {
   const filtered =
     filter === "All" ? GRID_PRODUCTS : GRID_PRODUCTS.filter((p) => p.brand === filter);
 
-  if (!ageOk) {
-    return (
-      <div className="min-h-screen font-body text-ink">
-        <AgeGate onConfirm={confirmAge} />
-      </div>
-    );
-  }
-
+  // AgeGate as overlay (SeoProductPage pattern): page content stays in SSR HTML for crawlers.
   return (
     <div className="min-h-screen font-body text-ink">
+      {!ageOk && (
+        <div className="fixed inset-0 z-[100] overflow-y-auto">
+          <AgeGate onConfirm={confirmAge} />
+        </div>
+      )}
+
       <div
         aria-hidden
         className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(900px_420px_at_72%_-12%,rgba(138,178,226,0.10),transparent_70%),radial-gradient(720px_380px_at_12%_-4%,rgba(231,154,107,0.09),transparent_70%)]"
