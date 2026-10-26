@@ -47,6 +47,14 @@ function isH3SwallowedErrorBody(body: string): boolean {
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      // URL hygiene: trailing-slash → non-slash 301 (sitemap/canonicals are non-slash).
+      // www→apex is Cloudflare/Lovable edge (live: 302) — do not add a second hop here.
+      const url = new URL(request.url);
+      if (url.pathname.length > 1 && url.pathname.endsWith("/")) {
+        url.pathname = url.pathname.replace(/\/+$/, "") || "/";
+        return Response.redirect(url.toString(), 301);
+      }
+
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);
